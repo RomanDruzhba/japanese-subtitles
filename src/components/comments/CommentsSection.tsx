@@ -11,64 +11,64 @@ interface Props {
 
 
 
-  const CommentsSection: React.FC<Props> = ({ videoId }) => {
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [input, setInput] = useState('');
+const CommentsSection: React.FC<Props> = ({ videoId }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [input, setInput] = useState('');
   
-    const STORAGE_KEY = `comments:${videoId}`;
+  const STORAGE_KEY = `comments:${videoId}`;
   
-    useEffect(() => {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          setComments(JSON.parse(saved));
-        } catch (e) {
-          console.error('Ошибка парсинга комментариев:', e);
-        }
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        setComments(JSON.parse(saved));
+      } catch (e) {
+        console.error('Ошибка парсинга комментариев:', e);
       }
-    }, [STORAGE_KEY]);
+    }
+  }, [STORAGE_KEY]);
   
-    useEffect(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(comments));
-    }, [comments, STORAGE_KEY]);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(comments));
+  }, [comments, STORAGE_KEY]);
   
-    const handleAddComment = () => {
-      if (!input.trim()) return;
+  const handleAddComment = () => {
+    if (!input.trim()) return;
   
-      const newComment: Comment = {
-        id: Date.now(),
-        text: input.trim(),
-      };
-  
-      setComments([...comments, newComment]);
-      setInput('');
+    const newComment: Comment = {
+      id: Date.now(),
+      text: input.trim(),
     };
   
-    return (
-      <div style={styles.container}>
-        <h3>Комментарии</h3>
-        <div style={styles.commentList}>
-          {comments.map((c) => (
-            <div key={c.id} style={styles.comment}>
-              {c.text}
-            </div>
-          ))}
-        </div>
-        <div style={styles.inputSection}>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Оставить комментарий..."
-            style={styles.input}
-          />
-          <button onClick={handleAddComment} style={styles.button}>
-            Отправить
-          </button>
-        </div>
-      </div>
-    );
+    setComments([...comments, newComment]);
+    setInput('');
   };
+  
+  return (
+    <div style={styles.container}>
+      <h3>Комментарии</h3>
+      <div style={styles.commentList}>
+        {comments.map((c) => (
+          <div key={c.id} style={styles.comment}>
+            {c.text}
+          </div>
+        ))}
+      </div>
+      <div style={styles.inputSection}>
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Оставить комментарий..."
+          style={styles.input}
+        />
+        <button onClick={handleAddComment} style={styles.button}>
+            Отправить
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {

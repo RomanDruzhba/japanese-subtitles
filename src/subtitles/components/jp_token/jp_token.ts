@@ -44,16 +44,16 @@ export class JpToken extends LitElement {
   public static styles = styles;
 
   @property({ type: String })
-  token = '';
+    token = '';
 
   @property({ type: String })
-  lang = ''; // Добавили язык токена (например, 'jpn', 'ru')
+    lang = ''; // Добавили язык токена (например, 'jpn', 'ru')
 
   @property({ type: Function })
-  handleTokenClick?: (token: string) => void;
+    handleTokenClick?: (token: string) => void;
 
   @property({ type: Function })
-  handleJapaneseClick?: (token: string) => void;
+    handleJapaneseClick?: (token: string) => void;
 
   public render() {
     return html`

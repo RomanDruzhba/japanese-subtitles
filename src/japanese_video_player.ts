@@ -129,7 +129,6 @@
 
 // customElements.define(JapaneseVideoPlayer.is, JapaneseVideoPlayer);
 
-
 import { LitElement, html, PropertyValues } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import style from './style';
@@ -161,7 +160,7 @@ export class JapaneseVideoPlayer extends LitElement {
         controlsList="nodownload"
       >
         ${this.subtitles.map(
-          (subtitle: Subtitle) => html`
+    (subtitle: Subtitle) => html`
             <track
               id="${subtitle.srclang}"
               kind="subtitles"
@@ -171,7 +170,7 @@ export class JapaneseVideoPlayer extends LitElement {
               ${subtitle.default ? 'default' : ''}
             >
           `
-        )}
+  )}
         Your browser does not support the video tag.
       </video>
 
@@ -182,13 +181,15 @@ export class JapaneseVideoPlayer extends LitElement {
 
   public updated(changedProperties: PropertyValues) {
     if (changedProperties.has('subtitles') && this.videoElement) {
-      const tracks = Array.from(this.videoElement.textTracks) as TextTrack[];
+      const trackList = this.videoElement.textTracks;
+      const tracks: TextTrack[] = Array.from(trackList); // безопасно и типизировано
+  
       const textTracks: TextTrackExtended[] = tracks.map((track) => {
         const extended = track as TextTrackExtended;
         extended.isActive = 'true';
         return extended;
       });
-
+  
       this.subtitlesElement.textTracks = textTracks;
       this.panelElement.textTracks = textTracks;
     }
@@ -199,7 +200,6 @@ export class JapaneseVideoPlayer extends LitElement {
       this.loadSubtitles();
     }
 
-    // Загружаем словарь (если он нужен внутри компонента — можно убрать, если React сам загружает)
     try {
       const res = await fetch('../public/mock/warodai_parsed.json');
       this.dictionary = await res.json();
@@ -209,7 +209,7 @@ export class JapaneseVideoPlayer extends LitElement {
   }
 
   private loadSubtitles() {
-    for (const textTrack of this.videoElement.textTracks) {
+    for (const textTrack of Array.from(this.videoElement.textTracks)) {
       textTrack.mode = 'showing';
       textTrack.mode = 'hidden';
     }

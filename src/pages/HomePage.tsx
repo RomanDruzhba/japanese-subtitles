@@ -49,6 +49,7 @@
 
 // export default HomePage;
 
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -63,14 +64,21 @@ interface AdminVideo {
   }[];
 }
 
+const SERVER_URL = 'http://localhost:3000';
+
 const HomePage: React.FC = () => {
   const [videos, setVideos] = useState<AdminVideo[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem('admin_videos');
-    if (raw) {
-      setVideos(JSON.parse(raw));
-    }
+    fetch(`${SERVER_URL}/api/videos`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => setVideos(data))
+      .catch(error => console.error('Ошибка при загрузке видео:', error));
   }, []);
 
   return (
@@ -78,11 +86,11 @@ const HomePage: React.FC = () => {
       <h1 style={{ textAlign: 'center' }}>Каталог видео</h1>
       <div style={styles.grid}>
         {videos.map((video) => (
-          <Link to={`/video?vid=${video.id}`} key={video.id} style={styles.cardLink}>
+          <Link to={`/video?vid=${encodeURIComponent(video.id)}`} key={video.id} style={styles.cardLink}>
             <div style={styles.card}>
               <h3>{video.animeTitle} / {video.episodeTitle}</h3>
               <video
-                src={`../../public/mock/${video.videoUrl}`}
+                src={`${SERVER_URL}${video.videoUrl}`}
                 width="100%"
                 controls
                 style={{ borderRadius: '6px', marginBottom: '0.5rem' }}
@@ -130,3 +138,5 @@ const styles: { [key: string]: React.CSSProperties } = {
 };
 
 export default HomePage;
+
+

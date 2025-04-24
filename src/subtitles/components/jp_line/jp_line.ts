@@ -120,22 +120,22 @@ export class JpLine extends LitElement {
   public static styles = styles;
 
   @property({ type: String })
-  lang = '';
+    lang = '';
 
   @property({ type: Object })
-  textTrack!: TextTrack;
+    textTrack!: TextTrack;
 
   @property({ type: Array })
-  tokens: string[] = [];
+    tokens: string[] = [];
 
   @property({ type: Boolean, reflect: true })
-  active = false;
+    active = false;
 
   @property({ type: Function })
-  handleTokenClick?: (token: string) => void;
+    handleTokenClick?: (token: string) => void;
 
   @property({ type: Function })
-  handleJapaneseClick?: (token: string) => void;
+    handleJapaneseClick?: (token: string) => void;
 
   constructor() {
     super();
@@ -176,7 +176,7 @@ export class JpLine extends LitElement {
     this.handleCueEnter(vttCue);
 
     const exitHandler = () => this.handleCueExit(vttCue);
-    // @ts-expect-error
+    // @ts-expect-error: расширяем VTTCue, чтобы хранить обработчик выхода
     vttCue.exitHandler = exitHandler;
     vttCue.addEventListener('exit', exitHandler);
   }
@@ -186,11 +186,11 @@ export class JpLine extends LitElement {
   }
 
   private handleCueExit(vttCue: VTTCue) {
-    // @ts-expect-error
+    // @ts-expect-error: проверяем
     if (vttCue.exitHandler) {
-      // @ts-expect-error
+      // @ts-expect-error: удаляем ранее добавленный обработчик выхода
       vttCue.removeEventListener('exit', vttCue.exitHandler);
-      // @ts-expect-error
+      // @ts-expect-error: обнуляем кастомное свойство
       vttCue.exitHandler = null;
     }
     this.clearLine();

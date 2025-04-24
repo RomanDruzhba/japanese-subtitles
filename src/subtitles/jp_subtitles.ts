@@ -59,10 +59,10 @@ export class JpSubtitles extends LitElement {
   public static styles = styles;
 
   @property({ type: Object })
-  textTracks?: TextTrackExtendedList;
+    textTracks?: TextTrackExtendedList;
 
   @property({ type: Function })
-  handleTokenClick?: (token: string) => void;
+    handleTokenClick?: (token: string) => void;
 
   public render() {
     if (!this.textTracks) {
@@ -71,8 +71,8 @@ export class JpSubtitles extends LitElement {
 
     return html`
       ${Array.from(this.textTracks)
-        .filter((track) => track.isActive !== 'false')
-        .map((track) => html`
+    .filter((track) => track.isActive !== 'false')
+    .map((track) => html`
           <jp-line
             lang="${track.language}"
             .textTrack="${track}"
