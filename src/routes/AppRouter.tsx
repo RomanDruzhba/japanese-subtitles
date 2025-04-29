@@ -7,6 +7,9 @@ import FlashcardsPage from '../pages/FlashcardsPage';
 import Layout from '../components/layout/Layout';
 import LoginPage from '../pages/LoginPage';
 import AdminPage from '../pages/AdminPage';
+import ProfilePage from '../pages/ProfilePage';
+import AdminDatabasePage from '../pages/AdminDatabasePage';
+
 
 const AppRouter: React.FC = () => {
   return (
@@ -19,6 +22,8 @@ const AppRouter: React.FC = () => {
           <Route path="/flashcards" element={<FlashcardsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/database" element={<AdminDatabasePage />} />
         </Routes>
       </Layout>
     </Router>

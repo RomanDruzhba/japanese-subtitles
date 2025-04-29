@@ -1,14 +1,34 @@
-// /src/pages/RegisterPage.tsx
 import React, { useState } from 'react';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Регистрация: ${email}`);
-    // Тут будет логика регистрации через API
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('http://localhost:3000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        setSuccess('Регистрация прошла успешно!');
+        setEmail('');
+        setPassword('');
+      } else {
+        const data = await response.json();
+        setError(data.message || 'Ошибка регистрации');
+      }
+    } catch (err) {
+      setError('Ошибка подключения к серверу');
+    }
   };
 
   return (
@@ -32,6 +52,8 @@ const RegisterPage: React.FC = () => {
           style={styles.input}
         />
         <button type="submit" style={styles.button}>Зарегистрироваться</button>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {success && <p style={{ color: 'green' }}>{success}</p>}
       </form>
     </div>
   );
