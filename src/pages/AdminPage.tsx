@@ -162,33 +162,33 @@ const AdminPage: React.FC = () => {
     }
   };
 
-const normalize = (str: string) => str.toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  const normalize = (str: string) => str.toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
 
-const normalizedFilter = normalize(filter);
+  const normalizedFilter = normalize(filter);
 
-const grouped = videos
-  .filter(v => {
-    const anime = normalize(v.animeTitle);
-    const episode = normalize(v.episodeTitle);
-    return anime.includes(normalizedFilter) || episode.includes(normalizedFilter);
-  })
-  .reduce((acc, video) => {
-    if (!acc[video.animeTitle]) acc[video.animeTitle] = [];
-    acc[video.animeTitle].push(video);
-    return acc;
-  }, {} as Record<string, AdminVideo[]>);
+  const grouped = videos
+    .filter(v => {
+      const anime = normalize(v.animeTitle);
+      const episode = normalize(v.episodeTitle);
+      return anime.includes(normalizedFilter) || episode.includes(normalizedFilter);
+    })
+    .reduce((acc, video) => {
+      if (!acc[video.animeTitle]) acc[video.animeTitle] = [];
+      acc[video.animeTitle].push(video);
+      return acc;
+    }, {} as Record<string, AdminVideo[]>);
 
-const groupedAll = allVideos
-  .filter(v => {
-    const anime = normalize(v.animeTitle);
-    const episode = normalize(v.episodeTitle);
-    return anime.includes(normalizedFilter) || episode.includes(normalizedFilter);
-  })
-  .reduce((acc, v) => {
-    if (!acc[v.animeTitle]) acc[v.animeTitle] = [];
-    acc[v.animeTitle].push(v);
-    return acc;
-  }, {} as Record<string, AdminVideo[]>);
+  const groupedAll = allVideos
+    .filter(v => {
+      const anime = normalize(v.animeTitle);
+      const episode = normalize(v.episodeTitle);
+      return anime.includes(normalizedFilter) || episode.includes(normalizedFilter);
+    })
+    .reduce((acc, v) => {
+      if (!acc[v.animeTitle]) acc[v.animeTitle] = [];
+      acc[v.animeTitle].push(v);
+      return acc;
+    }, {} as Record<string, AdminVideo[]>);
 
   return (
     <div style={{ padding: '1rem' }}>

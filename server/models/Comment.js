@@ -15,6 +15,19 @@ Comment.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
+  },
+  isAnonymous: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 }, { sequelize: db, modelName: 'comment' });
 
 // Связь: комментарий принадлежит пользователю

@@ -42,23 +42,90 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 style={{ marginTop: 0 }}>{word}</h2>
+        <h2 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+          {word}
+        </h2>
+        
         {entries.length > 0 ? (
-          entries.map((entry, idx) => (
-            <div key={idx} style={{ marginBottom: '1rem' }}>
-              <p><strong>Чтение:</strong> {entry.reading}</p>
-              <p><strong>Код:</strong> {entry.code}</p>
-              <ul>
-                {entry.senses.map((sense: string, i: number) => (
-                  <li key={i} dangerouslySetInnerHTML={{ __html: sense }} />
+          <div>
+            {/* Лучшее совпадение - выделяем особо */}
+            <div style={{
+              background: '#f8f8f8',
+              padding: '15px',
+              borderRadius: '5px',
+              marginBottom: '20px',
+              borderLeft: '4px solid #4CAF50'
+            }}>
+              <h3 style={{ marginTop: 0, color: '#2E7D32' }}>
+                {entries[0][0]} {/* Кандзи */}
+                <span style={{ fontSize: '0.9em', color: '#666', marginLeft: '10px' }}>
+                  {entries[0][1]} {/* Чтение */}
+                </span>
+              </h3>
+              <div>
+                {entries[0][5].map((sense: string, i: number) => (
+                  <p key={i} 
+                    style={{ margin: '8px 0' }}
+                    dangerouslySetInnerHTML={{ __html: sense }} 
+                  />
                 ))}
-              </ul>
+              </div>
             </div>
-          ))
+  
+            {/* Остальные варианты */}
+            {entries.length > 1 && (
+              <div style={{ marginTop: '20px' }}>
+                <h4 style={{ color: '#666', borderBottom: '1px solid #eee' }}>
+                  Другие варианты:
+                </h4>
+                {entries.slice(1).map((entry, idx) => (
+                  <div 
+                    key={idx} 
+                    style={{
+                      marginBottom: '1rem',
+                      padding: '10px',
+                      borderLeft: '3px solid #2196F3',
+                      background: '#f5f5f5'
+                    }}
+                  >
+                    <h4 style={{ margin: '0 0 5px 0' }}>
+                      {entry[0]} {/* Кандзи */}
+                      <span style={{ fontSize: '0.9em', color: '#666', marginLeft: '8px' }}>
+                        {entry[1]} {/* Чтение */}
+                      </span>
+                    </h4>
+                    <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                      {entry[5].map((sense: string, i: number) => (
+                        <li 
+                          key={i} 
+                          style={{ marginBottom: '5px' }}
+                          dangerouslySetInnerHTML={{ __html: sense }} 
+                        />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
-          <p>Нет записей в словаре.</p>
+          <p style={{ color: '#666', fontStyle: 'italic' }}>Нет записей в словаре.</p>
         )}
-        <button onClick={onClose}>Закрыть</button>
+        
+        <button 
+          onClick={onClose}
+          style={{
+            marginTop: '20px',
+            padding: '8px 16px',
+            background: '#f44336',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Закрыть
+        </button>
       </div>
     </div>
   );

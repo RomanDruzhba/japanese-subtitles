@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getCurrentUser } from '../../auth'; // Импортируем функцию для проверки авторизации
+import { useAuth } from '../../context/AuthContext'; // Импортируем функцию для проверки авторизации
 
 const Header: React.FC = () => {
-  const currentUser = getCurrentUser(); // Получаем текущего пользователя
+  const { currentUser } = useAuth(); // Получаем текущего пользователя
 
   return (
     <header style={styles.header}>

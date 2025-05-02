@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { saveCurrentUser } from '../auth'; // Мы сейчас обновим auth.ts
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage: React.FC = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -21,7 +22,7 @@ const LoginPage: React.FC = () => {
 
       if (response.ok) {
         const user = await response.json();
-        saveCurrentUser(user); // Сохраняем пользователя
+        login(user); // Сохраняем пользователя
         navigate('/');
       } else {
         const data = await response.json();

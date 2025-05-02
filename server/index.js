@@ -13,6 +13,10 @@ import userRoutes from './routes/userRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import dbEditorRoutes from './routes/dbEditor.js';
+import commentsRoutes from './routes/comments.js';
+
+import session from 'express-session';
+
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +26,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(session({
+  secret: 'yourSecretKey',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // secure: true только если используешь HTTPS
+}));
+
 app.use(cors());
 app.use(express.json());
 
@@ -30,6 +41,7 @@ app.use('/api', userRoutes);
 app.use('/api', videoRoutes);
 app.use('', uploadRoutes);
 app.use('/api/db', dbEditorRoutes);
+app.use('/api/comments', commentsRoutes);
 
 
 const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
@@ -81,14 +93,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 
-db.sync({ alter: true }).then(() => {
-  console.log('База данных синхронизирована');
-  app.listen(PORT, () => {
-    console.log(`Сервер запущен на http://localhost:${PORT}`);
-  });
-  
-}).catch((error) => {
-  console.error('Ошибка синхронизации базы данных:', error);
+app.listen(PORT, () => {
+  console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
-
 

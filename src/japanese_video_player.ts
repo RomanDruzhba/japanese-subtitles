@@ -199,13 +199,6 @@ export class JapaneseVideoPlayer extends LitElement {
     if (changedProperties.has('subtitles') && this.videoElement) {
       this.loadSubtitles();
     }
-
-    try {
-      const res = await fetch('../public/mock/warodai_parsed.json');
-      this.dictionary = await res.json();
-    } catch (err) {
-      console.error('❌ Ошибка загрузки словаря:', err);
-    }
   }
 
   private loadSubtitles() {

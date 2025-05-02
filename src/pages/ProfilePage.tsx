@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getCurrentUser, saveCurrentUser, logout } from '../auth';
+import { Link } from 'react-router-dom';
 
 interface Comment {
   id: number;
@@ -21,13 +22,29 @@ const ProfilePage: React.FC = () => {
   const [watchedEpisodes, setWatchedEpisodes] = useState<WatchedEpisode[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
-  const user = getCurrentUser();
+  const [expandedAnime, setExpandedAnime] = useState<string | null>(null);
+  const [videoMap, setVideoMap] = useState<Record<string, { animeTitle: string; episodeTitle: string }>>({});
+  const [expandedEpisode, setExpandedEpisode] = useState<string | null>(null);
+  const [user, setUser] = useState(() => getCurrentUser());
 
   useEffect(() => {
     if (!user) return;
 
     setNickname(user.nickname || '');
     setAvatarUrl(user.avatarUrl || '');
+
+    // Загружаем карту видео
+    fetch('http://localhost:3000/api/videos')
+      .then(res => res.json())
+      .then(data => {
+        const map: Record<string, { animeTitle: string; episodeTitle: string }> = {};
+        data.forEach((video: any) => {
+          map[video.id] = { animeTitle: video.animeTitle, episodeTitle: video.episodeTitle };
+        });
+        setVideoMap(map);
+      })
+      .catch(err => console.error('Ошибка загрузки видео карты', err));
+
 
     // Загружаем комментарии и просмотренные серии
     fetch(`http://localhost:3000/api/users/${user.id}/profile`)
@@ -41,7 +58,7 @@ const ProfilePage: React.FC = () => {
         console.error('Ошибка загрузки профиля', err);
         setLoading(false);
       });
-  }, [user]);
+  }, []);
 
   const handleSave = async () => {
     if (!user) return;
@@ -94,6 +111,23 @@ const ProfilePage: React.FC = () => {
     window.location.href = '/login'; // Перенаправляем на страницу логина после выхода
   };
 
+  const toggleAnime = (anime: string) => {
+    setExpandedAnime(prev => (prev === anime ? null : anime));
+    setExpandedEpisode(null);
+  };
+
+  const toggleEpisode = (episode: string) => {
+    setExpandedEpisode(prev => (prev === episode ? null : episode));
+  };
+
+  const groupedComments = comments.reduce((acc, comment) => {
+    const [anime, episode] = comment.videoId.split('/');
+    if (!acc[anime]) acc[anime] = {};
+    if (!acc[anime][episode]) acc[anime][episode] = [];
+    acc[anime][episode].push(comment);
+    return acc;
+  }, {} as Record<string, Record<string, Comment[]>>);
+
   if (!user) return <p>Вы не авторизованы</p>;
 
   if (loading) return <p>Загрузка профиля...</p>;
@@ -126,10 +160,39 @@ const ProfilePage: React.FC = () => {
         {comments.length === 0 ? (
           <p>Комментариев пока нет.</p>
         ) : (
-          comments.map(comment => (
-            <div key={comment.id} style={styles.comment}>
-              <p><strong>Видео:</strong> {comment.videoId}</p>
-              <p>{comment.text}</p>
+          Object.entries(
+            comments.reduce((acc, comment) => {
+              const meta = videoMap[comment.videoId];
+              if (!meta) return acc; // Пропускаем, если видео не найдено
+
+              const { animeTitle, episodeTitle } = meta;
+              if (!acc[animeTitle]) acc[animeTitle] = {};
+              if (!acc[animeTitle][episodeTitle]) acc[animeTitle][episodeTitle] = [];
+
+              acc[animeTitle][episodeTitle].push(comment);
+              return acc;
+            }, {} as Record<string, Record<string, Comment[]>>)
+          ).map(([animeTitle, episodes]) => (
+            <div key={animeTitle} style={{ marginBottom: '1rem' }}>
+              <details>
+                <summary style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{animeTitle}</summary>
+                {Object.entries(episodes).map(([episodeTitle, episodeComments]) => (
+                  <details key={episodeTitle} style={{ marginLeft: '1rem' }}>
+                    <summary>{episodeTitle}</summary>
+                    {episodeComments.map(comment => (
+                      <div key={comment.id} style={styles.comment}>
+                        <p>{comment.text}</p>
+                        <Link
+                          to={`/video?vid=${encodeURIComponent(comment.videoId)}`}
+                          style={{ ...styles.button, display: 'inline-block', marginTop: '0.5rem' }}
+                        >
+                          Перейти к видео
+                        </Link>
+                      </div>
+                    ))}
+                  </details>
+                ))}
+              </details>
             </div>
           ))
         )}
@@ -187,6 +250,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '0.75rem 1.5rem',
     fontSize: '1rem',
     cursor: 'pointer',
+    margin: '0.5rem 0',
   },
   section: {
     marginTop: '2rem',
