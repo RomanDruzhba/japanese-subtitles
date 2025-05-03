@@ -4,5 +4,5 @@
 # Запуск проекта
 
 ```shell
-npm run start
+npm run start:prod
 ```
