@@ -27,8 +27,8 @@ const CommentsSection: React.FC<Props> = ({ videoId }) => {
 
   useEffect(() => {
     fetch(`${SERVER_URL}/api/comments/${videoId}`, {
-        credentials: 'include',
-      })
+      credentials: 'include',
+    })
       .then(res => res.json())
       .then((data) => {
         
