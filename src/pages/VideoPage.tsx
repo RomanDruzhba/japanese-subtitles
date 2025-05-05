@@ -107,12 +107,10 @@ const VideoPage: React.FC = () => {
             .map(entry => {
               const [term, reading] = entry;
               let score = 0;
-
               if (term === token) score = 100;
               else if (reading === token) score = 80;
               else if (/[\u3400-\u9FBF]/.test(token) && term.includes(token)) score = 60;
               else if (reading.includes(token)) score = 40;
-
               return { entry, score };
             })
             .filter(item => item.score > 0)

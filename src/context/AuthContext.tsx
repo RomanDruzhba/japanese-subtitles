@@ -7,10 +7,12 @@ interface AuthContextType {
   logout: () => void;
 }
 
+const SERVER_URL = 'http://localhost:3000';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
 
   const login = (user: AuthUser) => {
     saveCurrentUser(user);
@@ -21,6 +23,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logoutFn();
     setCurrentUser(null);
   };
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await fetch(`${SERVER_URL}/api/current-user`, {
+          credentials: 'include',
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+          saveCurrentUser(user);
+          setCurrentUser(user);
+        } else {
+          logoutFn(); // очистить localStorage
+          setCurrentUser(null);
+        }
+      } catch (err) {
+        console.error('Ошибка при получении текущего пользователя:', err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   return (
     <AuthContext.Provider value={{ currentUser, login, logout }}>

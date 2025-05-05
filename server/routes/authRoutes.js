@@ -41,15 +41,38 @@ router.post('/login', async (req, res) => {
 
     req.session.userId = user.id;
     
-    res.json({
+    req.session.user = {
       id: user.id,
       email: user.email,
       nickname: user.nickname,
       avatarUrl: user.avatarUrl,
-    });
+      roleId: user.roleId,
+    };
+
+    res.json(req.session.user);
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
+router.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ error: 'Не удалось выйти из системы' });
+    }
+    res.clearCookie('connect.sid'); // Удаляем cookie сессии
+    res.json({ message: 'Вы вышли из системы' });
+  });
+});
+
+
+router.get('/current-user', (req, res) => {
+  if (req.session.user) {
+    res.json(req.session.user);
+  } else {
+    res.status(401).json({ message: 'Не авторизован' });
   }
 });
 

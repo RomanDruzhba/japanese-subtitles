@@ -6,8 +6,6 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-import { db } from './db.js';
-
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
@@ -27,14 +25,21 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(session({
-  secret: 'yourSecretKey',
+  secret: 'secret-key',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // secure: true только если используешь HTTPS
+  cookie: {
+    httpOnly: true,
+    secure: false, 
+    maxAge:  24 * 60 * 60 * 1000 // 1 день в миллисекундах (для авторизованного пользователя)
+  } 
 }));
 
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true, // <--- ВАЖНО
+}));
+app.use(express.json({ limit: '10mb' }));
 
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
