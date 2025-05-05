@@ -15,9 +15,12 @@ interface WatchedEpisode {
   watched: boolean;
 }
 
+const SERVER_URL = 'http://localhost:3000';
+
 const ProfilePage: React.FC = () => {
   const [nickname, setNickname] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [watchedEpisodes, setWatchedEpisodes] = useState<WatchedEpisode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +36,17 @@ const ProfilePage: React.FC = () => {
     setNickname(user.nickname || '');
     setAvatarUrl(user.avatarUrl || '');
 
+    // Загружаем аватар с сервера
+    fetch(`${SERVER_URL}/api/users/${user.id}/avatar`)
+      .then(res => res.blob())
+      .then(imageBlob => {
+        const imageObjectUrl = URL.createObjectURL(imageBlob);
+        setAvatarUrl(imageObjectUrl);
+      })
+      .catch(err => console.error('Ошибка загрузки аватара', err));
+
     // Загружаем карту видео
-    fetch('http://localhost:3000/api/videos')
+    fetch(`${SERVER_URL}/api/videos`)
       .then(res => res.json())
       .then(data => {
         const map: Record<string, { animeTitle: string; episodeTitle: string }> = {};
@@ -47,7 +59,7 @@ const ProfilePage: React.FC = () => {
 
 
     // Загружаем комментарии и просмотренные серии
-    fetch(`http://localhost:3000/api/users/${user.id}/profile`)
+    fetch(`${SERVER_URL}/api/users/${user.id}/profile`)
       .then(res => res.json())
       .then(data => {
         setComments(data.comments || []);
@@ -65,15 +77,22 @@ const ProfilePage: React.FC = () => {
     setMessage('');
 
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${user.id}`, {
+      const formData = new FormData();
+      formData.append('nickname', nickname);
+      if (selectedFile) {
+        formData.append('avatar', selectedFile);
+      }
+  
+      const response = await fetch(`${SERVER_URL}/api/users/${user.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname, avatarUrl }),
+        body: formData,
       });
-
+  
       if (response.ok) {
-        const updatedUser = { ...user, nickname, avatarUrl };
+        const result = await response.json(); // result.avatarUrl должен быть URL нового файла
+        const updatedUser = { ...user, nickname, avatarUrl: result.avatarUrl };
         saveCurrentUser(updatedUser);
+        setAvatarUrl(result.avatarUrl); // обновим аватар
         setMessage('Профиль обновлен успешно!');
       } else {
         setMessage('Ошибка обновления профиля');
@@ -88,7 +107,7 @@ const ProfilePage: React.FC = () => {
     if (!user) return;
     
     try {
-      const response = await fetch(`http://localhost:3000/api/watched-episodes/${episodeId}`, {
+      const response = await fetch(`${SERVER_URL}/api/watched-episodes/${episodeId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ watched: !currentStatus }),
@@ -106,9 +125,18 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/login'; // Перенаправляем на страницу логина после выхода
+  const handleLogout = async () => {
+    try {
+      await fetch(`${SERVER_URL}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (err) {
+      console.error('Ошибка при выходе:', err);
+    }
+  
+    logout(); // Удаляем localStorage
+    window.location.href = '/login';
   };
 
   const toggleAnime = (anime: string) => {
@@ -136,7 +164,7 @@ const ProfilePage: React.FC = () => {
     <div style={styles.container}>
       <h2>Профиль пользователя</h2>
       <div style={styles.profileSection}>
-        <img src={avatarUrl || '/default-avatar.png'} alt="Аватар" style={styles.avatar} />
+        <img src={avatarUrl || '/default-avatar.jpg'} alt="Аватар" style={styles.avatar} />
         <input
           type="text"
           placeholder="Никнейм"
@@ -145,10 +173,9 @@ const ProfilePage: React.FC = () => {
           style={styles.input}
         />
         <input
-          type="text"
-          placeholder="URL аватара"
-          value={avatarUrl}
-          onChange={(e) => setAvatarUrl(e.target.value)}
+          type="file"
+          accept="image/*"
+          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
           style={styles.input}
         />
         <button onClick={handleSave} style={styles.button}>Сохранить изменения</button>
@@ -179,15 +206,19 @@ const ProfilePage: React.FC = () => {
                 {Object.entries(episodes).map(([episodeTitle, episodeComments]) => (
                   <details key={episodeTitle} style={{ marginLeft: '1rem' }}>
                     <summary>{episodeTitle}</summary>
+                    {/* Кнопка перехода к видео — используем videoId первого комментария */}
+                    {episodeComments.length > 0 && (
+                      <Link
+                        to={`/video?vid=${encodeURIComponent(episodeComments[0].videoId)}`}
+                        style={{ ...styles.button, display: 'inline-block', marginBottom: '0.5rem' }}
+                      >
+                        Перейти к видео
+                      </Link>
+                    )}
+                    {/* Список комментариев */}
                     {episodeComments.map(comment => (
                       <div key={comment.id} style={styles.comment}>
                         <p>{comment.text}</p>
-                        <Link
-                          to={`/video?vid=${encodeURIComponent(comment.videoId)}`}
-                          style={{ ...styles.button, display: 'inline-block', marginTop: '0.5rem' }}
-                        >
-                          Перейти к видео
-                        </Link>
                       </div>
                     ))}
                   </details>

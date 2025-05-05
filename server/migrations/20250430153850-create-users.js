@@ -18,9 +18,13 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.STRING,
       allowNull: false
     },
-    avatarUrl: {
-      type: Sequelize.STRING,
+    avatar: {
+      type: Sequelize.BLOB('long'),
       allowNull: true
+    },
+    avatarMimeType: {
+      type: Sequelize.STRING,
+      allowNull: true,
     },
     createdAt: {
       type: Sequelize.DATE,

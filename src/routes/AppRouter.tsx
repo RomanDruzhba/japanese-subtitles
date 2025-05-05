@@ -9,6 +9,7 @@ import LoginPage from '../pages/LoginPage';
 import AdminPage from '../pages/AdminPage';
 import ProfilePage from '../pages/ProfilePage';
 import AdminDatabasePage from '../pages/AdminDatabasePage';
+import AdminRoute from './AdminRoute';
 
 
 const AppRouter: React.FC = () => {
@@ -21,9 +22,9 @@ const AppRouter: React.FC = () => {
           <Route path="/video" element={<VideoPage />} />
           <Route path="/flashcards" element={<FlashcardsPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+          <Route path="/database" element={<AdminRoute><AdminDatabasePage /></AdminRoute>} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/database" element={<AdminDatabasePage />} />
         </Routes>
       </Layout>
     </Router>
