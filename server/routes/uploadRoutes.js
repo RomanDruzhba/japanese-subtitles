@@ -37,9 +37,9 @@ const upload = multer({ storage });
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const { file } = req;
-    const animeTitle = req.headers['x-anime-title']?.toString().trim().replace(/\s+/g, ' ');
-    const episodeTitle = req.headers['x-episode-title']?.toString().trim().replace(/\s+/g, ' ');
-    const type = req.headers['x-type'];
+    const animeTitle = req.body.animeTitle?.toString().trim().replace(/\s+/g, ' ');
+    const episodeTitle = req.body.episodeTitle?.toString().trim().replace(/\s+/g, ' ');
+    const type = req.body.type;
 
     if (!animeTitle || !type) {
       return res.status(400).json({ error: 'Missing anime title or type header' });
@@ -64,6 +64,18 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       });
     }
 
+    if (type === 'poster') {
+      const description = req.body.description || '';
+      const rating = parseFloat(req.body.rating || '0');
+      const posterPath = `/${file.path.replace('public/', '')}`;
+    
+      await Anime.update(
+        { description, poster: posterPath, rating },
+        { where: { id: anime.id } }
+      );
+    }
+    console.log('Тип загрузки:', type);
+    console.log('Сохраняемый путь:', file.path);
     res.json({ message: 'Файл загружен' });
   } catch (err) {
     console.error(err);
