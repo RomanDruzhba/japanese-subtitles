@@ -4583,7 +4583,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
 	  }
 	};
 
-	var SERVER_URL$7 = 'http://localhost:3000';
+	var SERVER_URL$7 = 'https://romandruzhba.github.io';
 	var HomePage = function HomePage() {
 	  var _useState = reactExports.useState([]),
 	    _useState2 = _slicedToArray(_useState, 2),
@@ -4688,7 +4688,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
 	  localStorage.removeItem(STORAGE_KEY);
 	};
 
-	var SERVER_URL$6 = 'http://localhost:3000';
+	var SERVER_URL$6 = 'https://romandruzhba.github.io';
 	var COMMENTS_PER_PAGE = 5;
 	var CommentsSection = function CommentsSection(_ref) {
 	  var videoId = _ref.videoId;
@@ -5007,7 +5007,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
 	  });
 	};
 
-	var SERVER_URL$5 = 'http://localhost:3000';
+	var SERVER_URL$5 = 'https://romandruzhba.github.io';
 	var DICTIONARY_FILES_COUNT = 13; // Количество файлов словарей
 	var VideoPage = function VideoPage() {
 	  var containerRef = reactExports.useRef(null);
