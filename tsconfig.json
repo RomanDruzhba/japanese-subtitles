@@ -21,7 +21,7 @@
   "include": [
     "src/**/*",
     "tests/**/*",
-    "server/**/*"
-  ],
+    "server/**/*", 
+    "tailwind.config.js"  ],
   "exclude": ["node_modules"]
 }

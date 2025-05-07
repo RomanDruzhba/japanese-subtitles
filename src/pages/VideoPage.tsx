@@ -16,7 +16,6 @@ const VideoPage: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  //const [dictionary, setDictionary] = useState<DictionaryEntry[]>([]);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
 
@@ -29,29 +28,6 @@ const VideoPage: React.FC = () => {
       setIsLoading(true);
       setLoadingProgress(0);
       try {
-        /*const [videosRes, dictResponses] = await Promise.all([
-          fetch(`${SERVER_URL}/api/videos`),
-          fetch(`${SERVER_URL}/warodai_txt/warodai-yomichan/term_bank_1.json`),
-        ]);
-
-        const [videos, dict] = await Promise.all([
-          videosRes.json(),
-          dictRes.json(),
-        ]);
-
-        /*setDictionary(dict);
-        dictionaryRef.current = dict;
-        console.log('Загружен словарь:', dict);
-        console.log('Тип первой записи:', Array.isArray(dict[0]), dict[0]);
-
-        const combinedDictionary = dicts.flat();
-        dictionaryRef.current = combinedDictionary;
-
-        const video = videos.find((v: any) => v.id === videoId);
-        if (!video) {
-          console.warn('Видео не найдено по id:', videoId);
-          return;
-        }*/
 
         // 1. Загружаем данные видео
         const videosRes = await fetch(`${SERVER_URL}/api/videos`);

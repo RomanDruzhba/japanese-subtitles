@@ -6,7 +6,7 @@ import VideoPage from '../pages/VideoPage';
 import FlashcardsPage from '../pages/FlashcardsPage';
 import Layout from '../components/layout/Layout';
 import LoginPage from '../pages/LoginPage';
-import AdminPage from '../pages/AdminPage';
+import AdminPage from '../pages/AdminPage/AdminPage';
 import ProfilePage from '../pages/ProfilePage';
 import AdminDatabasePage from '../pages/AdminDatabasePage';
 import AdminRoute from './AdminRoute';

@@ -74,26 +74,23 @@ const AdminDatabasePage: React.FC = () => {
   };
 
   const renderCell = (col: string, row: any, rowIndex: number) => {
-    
-
     if (col === 'avatar' && typeof row[col] === 'string' && row[col].startsWith('data:')) {
-      return <img src={row[col]} alt="avatar" style={{ maxWidth: '50px', maxHeight: '50px' }} />;
+      return <img src={row[col]} alt="avatar" className="w-12 h-12 object-cover rounded-full" />;
     }
 
     if (col === 'roleId') {
       return (
         <select
+          className="border rounded p-1"
           value={row[col] || ''}
           onChange={(e) => {
-            const value = col === 'roleId' ? Number(e.target.value) : e.target.value;
+            const value = Number(e.target.value);
             handleCellChange(rowIndex, col, value);
           }}
         >
           <option value="">--</option>
           {roles.map(role => (
-            <option key={role.id} value={role.id}>
-              {role.name}
-            </option>
+            <option key={role.id} value={role.id}>{role.name}</option>
           ))}
         </select>
       );
@@ -101,6 +98,7 @@ const AdminDatabasePage: React.FC = () => {
 
     return (
       <input
+        className="border rounded px-2 py-1 w-full"
         value={row[col] ?? ''}
         onChange={(e) => handleCellChange(rowIndex, col, e.target.value)}
       />
@@ -108,22 +106,19 @@ const AdminDatabasePage: React.FC = () => {
   };
 
   const renderNewRowCell = (col: string) => {
-    
-
     if (col === 'roleId') {
       return (
         <select
+          className="border rounded p-1"
           value={newRow[col] || ''}
           onChange={(e) => {
-            const value = col === 'roleId' ? Number(e.target.value) : e.target.value;
+            const value = Number(e.target.value);
             setNewRow({ ...newRow, [col]: value });
           }}
         >
           <option value="">--</option>
           {roles.map(role => (
-            <option key={role.id} value={role.id}>
-              {role.name}
-            </option>
+            <option key={role.id} value={role.id}>{role.name}</option>
           ))}
         </select>
       );
@@ -131,6 +126,7 @@ const AdminDatabasePage: React.FC = () => {
 
     return (
       <input
+        className="border rounded px-2 py-1 w-full"
         value={newRow[col] || ''}
         onChange={(e) => setNewRow({ ...newRow, [col]: e.target.value })}
       />
@@ -138,107 +134,129 @@ const AdminDatabasePage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Управление базой данных</h2>
+    <div className="p-8">
+      <h2 className="text-2xl font-semibold mb-4">Управление базой данных</h2>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label>Выберите таблицу:&nbsp;</label>
-        <select value={selectedTable} onChange={(e) => loadTableData(e.target.value)}>
+      <div className="mb-4 flex items-center gap-2">
+        <label className="font-medium">Выберите таблицу:</label>
+        <select
+          className="border rounded px-2 py-1"
+          value={selectedTable}
+          onChange={(e) => loadTableData(e.target.value)}
+        >
           <option value="">--</option>
           {tables.map((table) => (
-            <option key={table} value={table}>
-              {table}
-            </option>
+            <option key={table} value={table}>{table}</option>
           ))}
         </select>
       </div>
 
-      
-
       {tableData && (
         <>
-          {/* 🔍 Блок фильтрации */}
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Фильтр по столбцу: </label>
+          {/* 🔍 Фильтрация */}
+          <div className="mb-4 flex items-center gap-2">
+            <label className="font-medium">Фильтр по:</label>
             <select
+              className="border rounded px-2 py-1"
               value={filterColumn}
               onChange={(e) => {
                 setFilterColumn(e.target.value);
-                setFilterValue(''); // сброс значения при смене столбца
+                setFilterValue('');
               }}
             >
               <option value="">--</option>
-              {tableData.columns.map((col) => (
-                <option key={col} value={col}>
-                  {col}
-                </option>
+              {tableData.columns.map(col => (
+                <option key={col} value={col}>{col}</option>
               ))}
             </select>
 
             {filterColumn && (
               <>
-                &nbsp;
-                <label>Значение: </label>
+                <label className="font-medium">Значение:</label>
                 <select
+                  className="border rounded px-2 py-1"
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
                 >
                   <option value="">--</option>
-                  {[...new Set(tableData.rows.map((row) => row[filterColumn]))]
-                    .filter((val) => val !== null && val !== undefined)
-                    .map((val) => (
-                      <option key={val} value={val}>
-                        {val}
-                      </option>
+                  {[...new Set(tableData.rows.map(row => row[filterColumn]))]
+                    .filter(v => v !== null && v !== undefined)
+                    .map(v => (
+                      <option key={v} value={v}>{v}</option>
                     ))}
                 </select>
-                &nbsp;
-                <button onClick={() => {
-                  setFilterColumn('');
-                  setFilterValue('');
-                }}>Сбросить фильтр</button>
+                <button
+                  className="bg-gray-200 hover:bg-gray-300 rounded px-2 py-1"
+                  onClick={() => {
+                    setFilterColumn('');
+                    setFilterValue('');
+                  }}
+                >
+                  Сбросить
+                </button>
               </>
             )}
           </div>
 
           {/* 📋 Таблица */}
-          <table border={1} cellPadding={5} cellSpacing={0} style={{ width: '100%' }}>
-            <thead>
-              <tr>
-                {tableData.columns.map((col) => (
-                  <th key={col}>{col}</th>
-                ))}
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.rows
-                .filter((row) => {
-                  if (!filterColumn || !filterValue) return true;
-                  return String(row[filterColumn]) === filterValue;
-                })
-                .map((row, rowIndex) => (
-                  <tr key={row.id || rowIndex}>
-                    {tableData.columns.map((col) => (
-                      <td key={col}>{renderCell(col, row, rowIndex)}</td>
-                    ))}
-                    <td>
-                      <button onClick={() => saveRow(row)}>💾 Сохранить</button>{' '}
-                      <button onClick={() => deleteRow(row.id)}>🗑 Удалить</button>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-300 text-sm">
+              <thead className="bg-gray-100">
+                <tr>
+                  {tableData.columns.map((col) => (
+                    <th key={col} className="border px-2 py-1">{col}</th>
+                  ))}
+                  <th className="border px-2 py-1">Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableData.rows
+                  .filter(row => {
+                    if (!filterColumn || !filterValue) return true;
+                    return String(row[filterColumn]) === filterValue;
+                  })
+                  .map((row, rowIndex) => (
+                    <tr key={row.id || rowIndex} className="even:bg-gray-50">
+                      {tableData.columns.map(col => (
+                        <td key={col} className="border px-2 py-1">
+                          {renderCell(col, row, rowIndex)}
+                        </td>
+                      ))}
+                      <td className="border px-2 py-1 whitespace-nowrap">
+                        <button
+                          className="text-green-600 hover:underline mr-2"
+                          onClick={() => saveRow(row)}
+                        >
+                          💾 Сохранить
+                        </button>
+                        <button
+                          className="text-red-600 hover:underline"
+                          onClick={() => deleteRow(row.id)}
+                        >
+                          🗑 Удалить
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                {/* Новая строка */}
+                <tr className="bg-green-50">
+                  {tableData.columns.map(col => (
+                    <td key={col} className="border px-2 py-1">
+                      {renderNewRowCell(col)}
                     </td>
-                  </tr>
-                ))}
-              {/* ➕ Добавление новой строки */}
-              <tr>
-                {tableData.columns.map((col) => (
-                  <td key={col}>{renderNewRowCell(col)}</td>
-                ))}
-                <td>
-                  <button onClick={addRow}>➕ Добавить</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  ))}
+                  <td className="border px-2 py-1 text-center">
+                    <button
+                      className="bg-blue-500 hover:bg-blue-600 text-white rounded px-3 py-1"
+                      onClick={addRow}
+                    >
+                      ➕ Добавить
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

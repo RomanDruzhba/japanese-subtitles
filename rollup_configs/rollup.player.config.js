@@ -4,6 +4,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
 import commonjs from '@rollup/plugin-commonjs';
+import postcss from 'rollup-plugin-postcss';
 
 export default {
   input: 'src/japanese_video_player.ts',
@@ -13,6 +14,11 @@ export default {
     sourcemap: true,
   },
   plugins: [
+    postcss({
+          extract: true, // вынесет CSS в отдельный файл
+          minimize: true,
+          sourceMap: true,
+        }),
     json(),
     resolve(),
     typescript({

@@ -4,7 +4,7 @@ import { babel } from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
-// import polyfillNode from 'rollup-plugin-polyfill-node';
+import postcss from 'rollup-plugin-postcss';
 
 export default {
   input: 'src/index.tsx',
@@ -14,6 +14,11 @@ export default {
     sourcemap: true,
   },
   plugins: [
+    postcss({
+      extract: true, // вынесет CSS в отдельный файл
+      minimize: true,
+      sourceMap: true,
+    }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
       preventAssignment: true,
