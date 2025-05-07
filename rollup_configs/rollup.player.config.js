@@ -15,10 +15,10 @@ export default {
   },
   plugins: [
     postcss({
-          extract: true, // вынесет CSS в отдельный файл
-          minimize: true,
-          sourceMap: true,
-        }),
+      extract: true, // вынесет CSS в отдельный файл
+      minimize: true,
+      sourceMap: true,
+    }),
     json(),
     resolve(),
     typescript({
