@@ -9,6 +9,16 @@ Anime.init({
     allowNull: false,
     unique: true,
   },
+  description: {
+    type: DataTypes.TEXT,
+  },
+  poster: {
+    type: DataTypes.STRING,
+  },
+  rating: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  },
   archived: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
