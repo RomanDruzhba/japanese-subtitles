@@ -26,19 +26,16 @@ const CommentsSection: React.FC<Props> = ({ videoId }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/comments/${videoId}`, {
-      credentials: 'include',
-    })
+    fetch(`${SERVER_URL}/api/comments/${videoId}`, { credentials: 'include' })
       .then(res => res.json())
-      .then((data) => {
-        
+      .then(data => {
         if (Array.isArray(data)) {
-          setComments(data); // Устанавливаем данные, если это массив
+          setComments(data);
         } else {
-          console.error('Ошибка в данных комментариев:', data); // Логируем ошибку, если данные не массив
+          console.error('Ошибка в данных комментариев:', data);
         }
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Ошибка при загрузке комментариев:', error);
       });
   }, [videoId]);
@@ -80,26 +77,32 @@ const CommentsSection: React.FC<Props> = ({ videoId }) => {
     .slice((currentPage - 1) * COMMENTS_PER_PAGE, currentPage * COMMENTS_PER_PAGE);
 
   return (
-    <div style={styles.container}>
-      <h3>Комментарии</h3>
+    <div className="mt-8 p-4 border-t border-gray-300">
+      <h3 className="text-lg font-semibold mb-4">Комментарии</h3>
 
-      <div style={styles.inputSection}>
+      <div className="flex gap-2 mb-4">
         <input
           type="text"
           maxLength={300}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Оставить комментарий (до 300 символов)..."
-          style={styles.input}
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
         />
-        <button onClick={handleAddComment} style={styles.button}>
+        <button
+          onClick={handleAddComment}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
           Отправить
         </button>
       </div>
 
-      <div style={styles.commentList}>
+      <div className="flex flex-col gap-4 mb-4">
         {pagedComments.map((c) => (
-          <div key={c.id} style={styles.comment}>
+          <div
+            key={c.id}
+            className="flex items-start gap-3 bg-white shadow p-4 rounded-xl"
+          >
             <img
               src={
                 c.isAnonymous || !c.user?.avatarUrl
@@ -107,82 +110,53 @@ const CommentsSection: React.FC<Props> = ({ videoId }) => {
                   : c.user.avatarUrl
               }
               alt="avatar"
-              style={styles.avatar}
+              className="w-10 h-10 rounded-full object-cover"
             />
             <div>
-              <strong>{c.isAnonymous ? 'Аноним' : c.user?.nickname}</strong>
-              <p>{c.text}</p>
+              <strong className="block mb-1">{c.isAnonymous ? 'Аноним' : c.user?.nickname}</strong>
+              <p className="text-gray-800">{c.text}</p>
             </div>
           </div>
         ))}
       </div>
 
       {totalPages > 1 && (
-        <div style={styles.pagination}>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              style={{
-                ...styles.pageButton,
-                fontWeight: currentPage === i + 1 ? 'bold' : 'normal',
-              }}
-            >
-              {i + 1}
-            </button>
-          ))}
+        <div className="flex justify-center gap-2 mt-4">
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => {
+              return (
+                page <= 3 ||
+                page > totalPages - 2 ||
+                Math.abs(page - currentPage) <= 1
+              );
+            })
+            .reduce((acc, page, i, arr) => {
+              if (i > 0 && page - arr[i - 1] > 1) {
+                acc.push('...');
+              }
+              acc.push(page);
+              return acc;
+            }, [] as (number | string)[]).map((item, idx) =>
+              item === '...' ? (
+                <span key={`ellipsis-${idx}`} className="mx-2">...</span>
+              ) : (
+                <button
+                  key={item}
+                  onClick={() => setCurrentPage(Number(item))}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === item
+                      ? 'bg-blue-500 text-white font-bold'
+                      : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            )}
         </div>
       )}
-      
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    marginTop: '2rem',
-    padding: '1rem',
-    borderTop: '1px solid #ccc',
-  },
-  commentList: {
-    marginBottom: '1rem',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  comment: {
-    display: 'flex',
-    gap: '0.75rem',
-    alignItems: 'flex-start',
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  inputSection: {
-    display: 'flex',
-    gap: 8,
-    marginBottom: 16
-  },
-  input: {
-    flex: 1,
-    padding: 8,
-  },
-  button: {
-    padding: '0.5rem 1rem',
-  },
-  pagination: { 
-    display: 'flex',
-    gap: 6, 
-    justifyContent: 'center',
-    marginTop: 16 
-  },
-  pageButton: { 
-    padding: '4px 8px',
-    cursor: 'pointer' 
-  },
 };
 
 export default CommentsSection;
