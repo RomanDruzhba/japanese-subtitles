@@ -9,7 +9,7 @@ const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <Header />
-      <main style={{ padding: '1rem' }}>{children}</main>
+      <main className='p-10'>{children}</main>
     </>
   );
 };

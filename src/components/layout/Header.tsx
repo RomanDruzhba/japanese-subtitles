@@ -4,35 +4,36 @@ import { useAuth } from '../../context/AuthContext'; // Импортируем �
 
 const Header: React.FC = () => {
   const { currentUser } = useAuth(); // Получаем текущего пользователя
+  const link_style = "text-[#222] bg-indigo-100 hover:bg-indigo-200 rounded-3xl text-center p-2 w-[200px]"
 
   return (
-    <header style={styles.header}>
-      <nav style={styles.nav}>
-        <Link to="/" style={styles.link}>Главная</Link>      {/* <Link to="/video">Видео</Link> */}
-        <Link to="/flashcards" style={styles.link}>Карточки</Link>
-        {!currentUser && <Link to="/register" style={styles.link}>Регистрация</Link>} {/* Показываем ссылку на регистрацию, если нет пользователя */}
-        {!currentUser && <Link to="/login" style={styles.link}>Логин</Link>} {/* Показываем ссылку на логин, если нет пользователя */}
-        {currentUser && <Link to="/profile" style={styles.link}>Профиль</Link>} {/* Показываем ссылку на профиль, если пользователь авторизован */}
-        {currentUser?.roleId === 3 && <Link to="/admin" style={styles.link}>Админ панель</Link>}
-        {currentUser?.roleId === 3 && <Link to="/database" style={styles.link}>База данных</Link>}
+    <header className='bg-[#222] p-5 pl-10 pr-10'>
+      <nav className='grid grid-cols-2 gap-5 w-full items-center '>
+        <div className="flex w-full gap-6 justify-start">
+          <Link to="/" className={link_style}>Главная</Link> {/* <Link to="/video">Видео</Link> */}
+          <Link to="/flashcards" className={link_style}>Карточки</Link>
+        </div>
+        {currentUser ? (
+          <div className='flex w-full justify-end'>
+            <Link to="/profile" className={link_style}>Профиль</Link> {/* Показываем ссылку на профиль, если пользователь авторизован */}
+          </div>
+        ) : (
+          <div className="flex gap-5 justify-end">
+            <Link to="/register" className={link_style}>Регистрация</Link> {/* Показываем ссылку на регистрацию, если нет пользователя */}
+            <Link to="/login" className={link_style}>Логин</Link> {/* Показываем ссылку на логин, если нет пользователя */}
+          </div>
+        )}
+        {currentUser?.roleId === 3 && <div className="flex w-full justify-around col-span-2">
+          <Link to="/admin" className={link_style}>Админ панель</Link>
+          <Link to="/database" className={link_style}>База данных</Link>
+        </div> }
       </nav>
     </header>
   );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
-  header: {
-    backgroundColor: '#222',
-    padding: '1rem',
-    marginBottom: '1rem'
-  },
-  nav: {
-    display: 'flex',
-    gap: '1rem',
-    justifyContent: 'center'
-  },
   link: {
-    color: 'black',
     textDecoration: 'none',
     backgroundColor: 'darksalmon',
     padding: '0.5rem',

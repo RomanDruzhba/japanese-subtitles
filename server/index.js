@@ -12,6 +12,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import dbEditorRoutes from './routes/dbEditor.js';
 import commentsRoutes from './routes/comments.js';
+import animeRoutes from './routes/animes.js';
 
 import session from 'express-session';
 
@@ -47,6 +48,7 @@ app.use('/api', videoRoutes);
 app.use('', uploadRoutes);
 app.use('/api/db', dbEditorRoutes);
 app.use('/api/comments', commentsRoutes);
+app.use('/api/animes', animeRoutes);
 
 
 const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
