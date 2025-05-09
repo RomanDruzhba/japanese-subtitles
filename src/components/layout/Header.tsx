@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext'; // Импортируем �
 
 const Header: React.FC = () => {
   const { currentUser } = useAuth(); // Получаем текущего пользователя
-  const link_style = "text-[#222] bg-indigo-100 hover:bg-indigo-200 rounded-3xl text-center p-2 w-[200px]"
+  const link_style = 'text-[#222] bg-indigo-100 hover:bg-indigo-200 rounded-3xl text-center p-2 w-[200px]';
 
   return (
     <header className='bg-[#222] p-5 pl-10 pr-10'>
