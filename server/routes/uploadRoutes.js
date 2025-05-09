@@ -4,6 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { Anime } from '../models/Anime.js';
 import { Episode } from '../models/Episode.js';
+import { Genre } from '../models/Genre.js';
+import { Tag } from '../models/Tag.js';
 
 const router = express.Router();
 const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
@@ -64,23 +66,59 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       });
     }
 
-    if (type === 'poster') {
-      const description = req.body.description || '';
-      const rating = parseFloat(req.body.rating || '0');
-      const posterPath = `/${file.path.replace('public/', '')}`;
     
-      await Anime.update(
-        { description, poster: posterPath, rating },
-        { where: { id: anime.id } }
-      );
-    }
-    console.log('Тип загрузки:', type);
-    console.log('Сохраняемый путь:', file.path);
-    res.json({ message: 'Файл загружен' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Ошибка при сохранении файла или записи в БД' });
   }
+});
+
+router.post('/upload/description', upload.single('file'), async (req, res) => {
+  try {
+    const { file } = req;
+    const animeTitle = req.body.animeTitle?.toString().trim();
+    if (!animeTitle) {
+      return res.status(400).json({ error: 'Название аниме обязательно' });
+    }
+
+    const description = req.body.description?.toString().trim();
+    const rating = parseFloat(req.body.rating || '0');
+    const genres = JSON.parse(req.body.genres || '[]');
+    const tags = JSON.parse(req.body.tags || '[]');
+
+    const [anime] = await Anime.findOrCreate({ where: { title: animeTitle } });
+
+    const updateData = { rating }; // start with rating
+    if (description) updateData.description = description;
+    if (file) updateData.poster = `/${file.path.replace('public/', '')}`;
+
+    await anime.update(updateData);
+
+    if (genres.length > 0) {
+      const genreRecords = await Genre.findAll({ where: { id: genres } });
+      await anime.setGenres(genreRecords);
+    }
+
+    if (tags.length > 0) {
+      const tagRecords = await Tag.findAll({ where: { id: tags } });
+      await anime.setTags(tagRecords);
+    }
+
+    res.json({ message: 'Изменения успешно сохранены' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка при сохранении описания' });
+  }
+});
+
+router.get('/genres', async (req, res) => {
+  const genres = await Genre.findAll();
+  res.json(genres);
+});
+
+router.get('/tags', async (req, res) => {
+  const tags = await Tag.findAll();
+  res.json(tags);
 });
 
 export default router;
