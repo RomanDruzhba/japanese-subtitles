@@ -52,64 +52,64 @@ const AdminDatabasePage: React.FC = () => {
   };
 
   const renderCell = (col: string, row: any, rowIndex: number) => {
-  const value = row[col];
+    const value = row[col];
 
-  // Обработка изображений (poster, avatar, др.)
-  if (['poster', 'avatar'].includes(col)) {
-    const isImage = typeof value === 'string' && value.startsWith('data:');
+    // Обработка изображений (poster, avatar, др.)
+    if (['poster', 'avatar'].includes(col)) {
+      const isImage = typeof value === 'string' && value.startsWith('data:');
 
-    return (
-      <div className="flex flex-col items-center">
-        {isImage && (
-          <img
-            src={value}
-            alt={col}
-            className={col === 'poster' ? 'w-24 h-36 object-cover mb-1' : 'w-12 h-12 rounded-full object-cover mb-1'}
-          />
-        )}
-        {isImage && (
-          <button
-            onClick={() => {
-              handleCellChange(rowIndex, col, '');
-              saveRow({ ...row, [col]: '' });
-            }}
-            className="text-red-500 text-xs hover:underline"
-          >
+      return (
+        <div className="flex flex-col items-center">
+          {isImage && (
+            <img
+              src={value}
+              alt={col}
+              className={col === 'poster' ? 'w-24 h-36 object-cover mb-1' : 'w-12 h-12 rounded-full object-cover mb-1'}
+            />
+          )}
+          {isImage && (
+            <button
+              onClick={() => {
+                handleCellChange(rowIndex, col, '');
+                saveRow({ ...row, [col]: '' });
+              }}
+              className="text-red-500 text-xs hover:underline"
+            >
             Удалить
-          </button>
-        )}
-      </div>
-    );
-  }
+            </button>
+          )}
+        </div>
+      );
+    }
 
-  // Выпадающий список для roleId
-  if (col === 'roleId') {
+    // Выпадающий список для roleId
+    if (col === 'roleId') {
+      return (
+        <select
+          className="border rounded p-1"
+          value={value || ''}
+          onChange={(e) => {
+            const newVal = Number(e.target.value);
+            handleCellChange(rowIndex, col, newVal);
+          }}
+        >
+          <option value="">--</option>
+          {roles.map(role => (
+            <option key={role.id} value={role.id}>{role.name}</option>
+          ))}
+        </select>
+      );
+    }
+
+    // По умолчанию — текстовое поле
     return (
-      <select
-        className="border rounded p-1"
-        value={value || ''}
-        onChange={(e) => {
-          const newVal = Number(e.target.value);
-          handleCellChange(rowIndex, col, newVal);
-        }}
-      >
-        <option value="">--</option>
-        {roles.map(role => (
-          <option key={role.id} value={role.id}>{role.name}</option>
-        ))}
-      </select>
+      <input
+        className="border rounded px-2 py-1 w-full"
+        value={value ?? ''}
+        onChange={(e) => handleCellChange(rowIndex, col, e.target.value)}
+      />
     );
-  }
-
-  // По умолчанию — текстовое поле
-  return (
-    <input
-      className="border rounded px-2 py-1 w-full"
-      value={value ?? ''}
-      onChange={(e) => handleCellChange(rowIndex, col, e.target.value)}
-    />
-  );
-};
+  };
 
   const saveRow = (row: any) => {
     fetch(`/api/db/table/${selectedTable}`, {
