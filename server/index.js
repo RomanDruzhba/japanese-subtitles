@@ -13,6 +13,7 @@ import videoRoutes from './routes/videoRoutes.js';
 import dbEditorRoutes from './routes/dbEditor.js';
 import commentsRoutes from './routes/comments.js';
 import animeRoutes from './routes/animes.js';
+import adminoutes from './routes/admin.js';
 
 import session from 'express-session';
 
@@ -49,6 +50,7 @@ app.use('', uploadRoutes);
 app.use('/api/db', dbEditorRoutes);
 app.use('/api/comments', commentsRoutes);
 app.use('/api/animes', animeRoutes);
+app.use('/api/admin', adminoutes);
 
 
 const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
@@ -90,30 +92,6 @@ app.delete('/delete', (req, res) => {
   res.json({ message: messages.join('; ') || 'Ничего не найдено для удаления' });
 });
 
-app.delete('/api/delete-file', (req, res) => {
-  const { filePath } = req.body;
-  if (!filePath || typeof filePath !== 'string') {
-    return res.status(400).json({ error: 'Неверный путь к файлу' });
-  }
-
-  const sanitizedPath = filePath.replace(/^\/?mock\/?/, '');
-  const fullPath = path.join(BASE_DIR, sanitizedPath);
-
-  if (!fullPath.startsWith(BASE_DIR)) {
-    return res.status(403).json({ error: 'Доступ запрещён' });
-  }
-
-  if (fs.existsSync(fullPath)) {
-    try {
-      fs.unlinkSync(fullPath);
-      return res.json({ message: 'Файл удалён' });
-    } catch (err) {
-      return res.status(500).json({ error: 'Ошибка при удалении', details: err.message });
-    }
-  } else {
-    return res.status(404).json({ error: 'Файл не найден' });
-  }
-});
 
 // Статика
 app.use('/mock', express.static(path.join(__dirname, '../public/mock')));

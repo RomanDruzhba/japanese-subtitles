@@ -73,8 +73,15 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-router.post('/upload/description', upload.single('file'), async (req, res) => {
+const uploadposter = multer({ storage: multer.memoryStorage() });
+
+router.post('/upload/description', uploadposter.single('file'), async (req, res) => {
   try {
+    const releasedRaw = req.body.released?.toString();
+    const finishedRaw = req.body.finished?.toString();
+    const released = releasedRaw ? new Date(releasedRaw) : null;
+    const finished = finishedRaw === 'true';
+
     const { file } = req;
     const animeTitle = req.body.animeTitle?.toString().trim();
     if (!animeTitle) {
@@ -88,9 +95,14 @@ router.post('/upload/description', upload.single('file'), async (req, res) => {
 
     const [anime] = await Anime.findOrCreate({ where: { title: animeTitle } });
 
-    const updateData = { rating }; // start with rating
+    const updateData = { rating, finished };
     if (description) updateData.description = description;
-    if (file) updateData.poster = `/${file.path.replace('public/', '')}`;
+    if (released) updateData.released = released;
+    if (file) {
+      const fileBuffer = Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer);
+      updateData.poster = fileBuffer;
+      updateData.posterMimeType = file.mimetype;
+    }
 
     await anime.update(updateData);
 
@@ -103,7 +115,6 @@ router.post('/upload/description', upload.single('file'), async (req, res) => {
       const tagRecords = await Tag.findAll({ where: { id: tags } });
       await anime.setTags(tagRecords);
     }
-
     res.json({ message: 'Изменения успешно сохранены' });
   } catch (err) {
     console.error(err);

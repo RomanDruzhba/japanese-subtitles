@@ -15,9 +15,27 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
   const [expandedAnime, setExpandedAnime] = useState<string | null>(null);
   const [expandedEpisode, setExpandedEpisode] = useState<number | null>(null);
 
+  const handleArchiveAnime = async (animeTitle: string) => {
+    try {
+      await axios.post(`${SERVER_URL}/api/admin/archive-anime/${encodeURIComponent(animeTitle)}`);
+      alert(`Аниме "${animeTitle}" архивировано`);
+    } catch (err) {
+      alert(`Ошибка архивирования аниме: ${err}`);
+    }
+  };
+
+  const handleArchiveEpisode = async (episodeId: number) => {
+    try {
+      await axios.post(`${SERVER_URL}/api/admin/archive-episode/${episodeId}`);
+      alert(`Эпизод ID ${episodeId} архивирован`);
+    } catch (err) {
+      alert(`Ошибка архивирования эпизода: ${err}`);
+    }
+  };
+
   const handleDeleteFile = async (filePath: string) => {
     try {
-      await axios.delete(`${SERVER_URL}/api/delete-file`, {
+      await axios.delete(`${SERVER_URL}/api/admin/delete-file`, {
         data: { filePath }
       } as any);
       alert('Файл удалён');
@@ -67,6 +85,12 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
             >
               {animeTitle.replace(/_/g, ' ')}
             </h4>
+            <button
+              onClick={() => handleArchiveAnime(animeTitle)}
+              className="mt-1 ml-2 px-2 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
+            >
+              Архивировать аниме
+            </button>
 
             {expandedAnime === animeTitle && (
               <ul className="mt-2 space-y-3">
@@ -115,7 +139,15 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
                         >
                           Удалить эпизод полностью
                         </button>
+
+                        <button
+                          onClick={() => handleArchiveEpisode(video.id)}
+                          className="ml-2 px-2 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                        >
+                          Архивировать эпизод
+                        </button>
                       </div>
+                      
                     )}
                   </li>
                 ))}
