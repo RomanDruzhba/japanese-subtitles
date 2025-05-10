@@ -31,7 +31,6 @@ export default {
       preferBuiltins: false
     }),
     commonjs(),
-    resolve(),
     // polyfillNode(),
     typescript(),
     babel({
