@@ -9,11 +9,9 @@ Episode.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
-  description: {
-    type: DataTypes.TEXT,
-  },
   poster: {
-    type: DataTypes.STRING,
+    type: DataTypes.BLOB('long'),
+    allowNull: true,
   },
   rating: {
     type: DataTypes.FLOAT,
@@ -22,6 +20,10 @@ Episode.init({
   archived: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  posterMimeType: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 }, { sequelize: db, modelName: 'episode' });
 

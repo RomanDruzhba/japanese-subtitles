@@ -16,6 +16,8 @@ const DescriptionUploadForm: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [genres, setGenres] = useState<GenreOrTag[]>([]);
   const [tags, setTags] = useState<GenreOrTag[]>([]);
+  const [released, setReleased] = useState('');
+  const [finished, setFinished] = useState(false);
 
   useEffect(() => {
     axios.get<GenreOrTag[]>(`${SERVER_URL}/genres`).then((res) => setGenres(res.data));
@@ -40,6 +42,8 @@ const DescriptionUploadForm: React.FC = () => {
     formData.append('description', description);
     formData.append('genres', JSON.stringify(selectedGenres));
     formData.append('tags', JSON.stringify(selectedTags));
+    formData.append('released', released);
+    formData.append('finished', String(finished));
 
     try {
       await axios.post(`${SERVER_URL}/upload/description`, formData, {
@@ -76,6 +80,21 @@ const DescriptionUploadForm: React.FC = () => {
       <select multiple value={selectedTags} onChange={(e) => setSelectedTags(Array.from(e.target.selectedOptions, o => o.value))} className="w-full border p-2 rounded">
         {tags.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
       </select>
+
+      <label>Дата выхода</label>
+      <input
+        type="date"
+        className="w-full border p-2 rounded"
+        value={released}
+        onChange={(e) => setReleased(e.target.value)}
+      />
+
+      <label>Завершено</label>
+      <input
+        type="checkbox"
+        checked={finished}
+        onChange={(e) => setFinished(e.target.checked)}
+      />
 
       <label>Обложка</label>
       <input type="file" accept="image/*" onChange={(e) => setPoster(e.target.files?.[0] || null)} />

@@ -1,96 +1,3 @@
-// // src/pages/HomePage.tsx
-
-// import React, { useEffect, useState } from 'react';
-// import { Link } from 'react-router-dom';
-
-// interface AdminVideo {
-//   id: number;
-//   animeTitle: string;
-//   episodeTitle: string;
-//   videoUrl: string;
-//   subtitles: {
-//     lang: string;
-//     url: string;
-//   }[];
-// }
-
-// const SERVER_URL = 'http://localhost:3000';
-
-// const HomePage: React.FC = () => {
-//   const [videos, setVideos] = useState<AdminVideo[]>([]);
-
-//   useEffect(() => {
-//     fetch(`${SERVER_URL}/api/videos`)
-//       .then(response => {
-//         if (!response.ok) {
-//           throw new Error(`HTTP error! status: ${response.status}`);
-//         }
-//         return response.json();
-//       })
-//       .then(data => setVideos(data))
-//       .catch(error => console.error('Ошибка при загрузке видео:', error));
-//   }, []);
-
-//   return (
-//     <div style={{ padding: '2rem' }}>
-//       <h1 style={{ textAlign: 'center' }}>Каталог видео</h1>
-//       <div style={styles.grid}>
-//         {videos.map((video) => (
-//           <Link to={`/video?vid=${encodeURIComponent(video.id)}`} key={video.id} style={styles.cardLink}>
-//             <div style={styles.card}>
-//               <h3>{video.animeTitle} / {video.episodeTitle}</h3>
-//               <video
-//                 src={`${SERVER_URL}${video.videoUrl}`}
-//                 width="100%"
-//                 controls
-//                 style={{ borderRadius: '6px', marginBottom: '0.5rem' }}
-//               />
-//               <div style={{ fontSize: '0.9rem' }}>
-//                 Субтитры: {video.subtitles.map((s) => s.lang.toUpperCase()).join(', ')}
-//               </div>
-//               <button style={styles.button}>Смотреть</button>
-//             </div>
-//           </Link>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// const styles: { [key: string]: React.CSSProperties } = {
-//   grid: {
-//     display: 'grid',
-//     gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-//     gap: '1.5rem',
-//   },
-//   cardLink: {
-//     textDecoration: 'none',
-//     color: 'inherit',
-//   },
-//   card: {
-//     border: '1px solid #ccc',
-//     padding: '1rem',
-//     borderRadius: '8px',
-//     backgroundColor: '#fefefe',
-//     boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-//     transition: 'transform 0.2s ease',
-//   },
-//   button: {
-//     marginTop: '0.5rem',
-//     padding: '0.5rem 1rem',
-//     fontSize: '1rem',
-//     cursor: 'pointer',
-//     backgroundColor: '#4caf50',
-//     color: 'white',
-//     border: 'none',
-//     borderRadius: '4px',
-//   }
-// };
-
-// export default HomePage;
-
-
-// src/pages/HomePage.tsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -100,8 +7,10 @@ interface Anime {
   id: number;
   title: string;
   description: string;
-  poster: string;
+  poster: string | null;
   rating: number;
+  released?: string;
+  finished?: boolean;
   genres?: { name: string }[];
   tags?: { name: string }[];
 }
@@ -117,6 +26,7 @@ const HomePage: React.FC = () => {
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${SERVER_URL}/api/animes`)
@@ -136,42 +46,100 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const filteredAnimes = selectedTag
+    ? animes.filter(a => a.tags?.some(tag => tag.name === selectedTag))
+    : animes;
+
+  const displayedAnimes = filteredAnimes.slice(0, 8);
+
   return (
-    <div className='p-2'>
+    <div className="p-4">
       {!selectedAnime ? (
         <>
-          <h1 style={{ textAlign: 'center' }}>Аниме-каталог</h1>
-          <div style={styles.grid}>
-            {animes.map(anime => (
-              <div key={anime.id} style={styles.card} onClick={() => handleAnimeClick(anime)}>
-                <img src={`${SERVER_URL}/${anime.poster}`} alt={anime.title} style={{ width: '100%', borderRadius: '6px' }} />
-                <h3>{anime.title}</h3>
-                <p>{anime.description?.slice(0, 80)}...</p>
+          <h1 className="text-center text-3xl font-bold mb-6">Аниме-каталог</h1>
+          {selectedTag && (
+            <div className="mb-4 text-center">
+              <span className="mr-2 text-blue-700 font-semibold">Фильтр по тегу: {selectedTag}</span>
+              <button
+                onClick={() => setSelectedTag(null)}
+                className="text-sm px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Сбросить фильтр
+              </button>
+            </div>
+          )}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {displayedAnimes.map(anime => (
+              <div
+                key={anime.id}
+                onClick={() => handleAnimeClick(anime)}
+                className="cursor-pointer border border-gray-200 rounded-xl bg-white shadow-md p-4 hover:shadow-lg transition"
+              >
+                {anime.poster && (
+                  <img
+                    src={anime.poster}
+                    alt={anime.title}
+                    className="w-full h-48 object-cover rounded-md mb-3"
+                  />
+                )}
+                <h3 className="text-lg font-semibold mb-1">{anime.title}</h3>
+                <p className="text-sm text-gray-600 mb-2">{anime.description?.slice(0, 80)}...</p>
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">Дата выхода:</span>{' '}
+                  {anime.released ? new Date(anime.released).toLocaleDateString() : 'Неизвестна'}
+                </p>
+                <p className="text-sm text-gray-700 mb-2">
+                  <span className="font-semibold">Завершено:</span>{' '}
+                  {anime.finished ? 'Да' : 'Нет'}
+                </p>
+                <div className="text-sm text-gray-600 flex flex-wrap gap-1 mb-1">
+                  {anime.genres?.map((genre, i) => (
+                    <span key={i} className="bg-gray-100 px-2 py-0.5 rounded text-xs">{genre.name}</span>
+                  ))}
+                </div>
+                <div className="text-sm text-gray-600 flex flex-wrap gap-1">
+                  {anime.tags?.map((tag, i) => (
+                    <button
+                      key={i}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTag(tag.name);
+                      }}
+                      className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs hover:bg-blue-200"
+                    >
+                      #{tag.name}
+                    </button>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
         </>
       ) : (
         <>
-          <button onClick={() => setSelectedAnime(null)} style={styles.backButton}>Назад</button>
-          <div style={{ marginBottom: '2rem' }}>
-            <h2>{selectedAnime.title}</h2>
-            <p>{selectedAnime.description}</p>
+          <button
+            onClick={() => setSelectedAnime(null)}
+            className="mb-4 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+          >
+            Назад
+          </button>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2">{selectedAnime.title}</h2>
+            <p className="text-gray-700">{selectedAnime.description}</p>
           </div>
-          <div style={styles.grid}>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {episodes.map(ep => (
-              <Link to={`/video?vid=${ep.id}`} key={ep.id} style={styles.cardLink}>
-                <div style={styles.card}>
-                  <h4>{ep.title}</h4>
-                  <video className=''
+              <Link to={`/video?vid=${ep.id}`} key={ep.id} className="text-inherit no-underline">
+                <div className="border border-gray-200 rounded-xl bg-white shadow p-4 hover:shadow-md transition">
+                  <h4 className="text-lg font-medium mb-2">{ep.title}</h4>
+                  <video
                     src={`${SERVER_URL}${ep.videoUrl}`}
-                    width="100%"
                     controls
-                    style={{ borderRadius: '6px' }}
+                    className="w-full rounded-md mb-2"
                   />
-                  <div style={{ fontSize: '0.9rem' }}>
-                    Субтитры: {ep.subtitles?.map((s) => s.lang.toUpperCase()).join(', ')}
-                  </div>
+                  <p className="text-sm text-gray-600">
+                    Субтитры: {ep.subtitles?.map(s => s.lang.toUpperCase()).join(', ')}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -180,37 +148,6 @@ const HomePage: React.FC = () => {
       )}
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '1.5rem',
-  },
-  card: {
-    border: '1px solid #ccc',
-    padding: '1rem',
-    borderRadius: '8px',
-    backgroundColor: '#fefefe',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-    cursor: 'pointer',
-    transition: 'transform 0.2s ease',
-  },
-  cardLink: {
-    textDecoration: 'none',
-    color: 'inherit',
-  },
-  backButton: {
-    marginBottom: '1rem',
-    padding: '0.5rem 1rem',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    backgroundColor: '#1976d2',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-  },
 };
 
 export default HomePage;

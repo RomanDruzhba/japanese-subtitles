@@ -2,6 +2,9 @@
 import Database from 'better-sqlite3';
 import express from 'express';
 import path from 'path';
+import multer from 'multer';
+
+const upload = multer();
 
 const dbPath = path.join(process.cwd(), 'server', 'database.sqlite');
 const db = new Database(dbPath);
@@ -20,31 +23,52 @@ router.get('/tables', (req, res) => {
   res.json(tables.map(t => t.name));
 });
 
+
 // Получить данные таблицы
 router.get('/table/:tableName', (req, res) => {
   const table = req.params.tableName;
-  const columns = db.prepare(`PRAGMA table_info(${table})`).all().map(col => col.name);
-  const rowsRaw = db.prepare(`SELECT * FROM ${table}`).all();
   const pragma = db.prepare(`PRAGMA table_info(${table})`).all();
+  const rowsRaw = db.prepare(`SELECT * FROM ${table}`).all();
+
   const blobFields = pragma.filter(col => col.type?.toLowerCase() === 'blob').map(col => col.name);
   const sensitiveFields = ['password'];
 
-  // Преобразуем буферы в base64 строки
+  const visibleColumns = pragma
+    .filter(col => !sensitiveFields.includes(col.name))
+    .map(col => col.name);
+
   const rows = rowsRaw.map(row => {
-    for (const field of blobFields) {
-      if (row[field] instanceof Buffer) {
-        row[field] = `data:image/png;base64,${row[field].toString('base64')}`;
+    const processedRow = {};
+
+    for (const key of visibleColumns) {
+      if (blobFields.includes(key)) {
+        let buf = row[key];
+
+        // Преобразуем если это псевдо-буфер (как от JSON сериализации)
+        if (buf && typeof buf === 'object' && buf.type === 'Buffer' && Array.isArray(buf.data)) {
+          buf = Buffer.from(buf.data);
+        }
+
+
+        // Проверяем и обрабатываем как изображение
+        if (Buffer.isBuffer(buf)) {
+          const mimeTypeKey = Object.keys(row).find(k =>
+            k.toLowerCase() === `${key.toLowerCase()}mimetype`
+          );
+          const mimeType = mimeTypeKey ? row[mimeTypeKey] : 'image/jpeg';
+          processedRow[key] = `data:${mimeType};base64,${buf.toString('base64')}`;
+        } else {
+          processedRow[key] = null;
+        }
+      } else {
+        processedRow[key] = row[key];
       }
     }
-    for (const field of sensitiveFields) {
-      if (field in row) {
-        row[field] = '***';
-      }
-    }
-    return row;
+    
+    return processedRow;
   });
 
-  res.json({ columns: pragma.map(col => col.name), rows });
+  res.json({ columns: visibleColumns, rows });
 });
 
 // Добавить строку
@@ -52,8 +76,21 @@ router.post('/table/:tableName', (req, res) => {
   const table = req.params.tableName;
   const row = req.body;
 
-  // Автоматически добавить createdAt, если поле есть
   const pragma = db.prepare(`PRAGMA table_info(${table})`).all();
+  const blobFields = pragma.filter(col => col.type?.toLowerCase() === 'blob').map(col => col.name);
+
+  for (const key of blobFields) {
+    if (typeof row[key] === 'string' && row[key].startsWith('data:')) {
+      const [meta, base64] = row[key].split(',');
+      const mimeMatch = meta.match(/data:(.*);base64/);
+      if (mimeMatch) {
+        const mimeType = mimeMatch[1];
+        row[key] = Buffer.from(base64, 'base64');
+        row[`${key}MimeType`] = mimeType;
+      }
+    }
+  }
+
   if (pragma.some(col => col.name === 'createdAt')) {
     row.createdAt = new Date().toISOString();
   }
@@ -75,24 +112,39 @@ router.put('/table/:tableName', (req, res) => {
 
   const keys = Object.keys(rest);
   const values = keys.map(k => {
-    if (blobFields.includes(k)) {
-      const val = rest[k];
-      if (typeof val === 'string' && val.startsWith('data:')) {
-        // Конвертация из base64
-        const base64 = val.split(',')[1];
+    const val = rest[k];
+    if (blobFields.includes(k) && typeof val === 'string' && val.startsWith('data:')) {
+      const [meta, base64] = val.split(',');
+      const mimeMatch = meta.match(/data:(.*);base64/);
+      if (mimeMatch) {
+        const mimeType = mimeMatch[1];
+        rest[`${k}MimeType`] = mimeType;
         return Buffer.from(base64, 'base64');
-      } else if (val === null) {
-        return null;
-      } else {
-        return val; // может быть уже Buffer
       }
     }
-    return rest[k];
+    return val;
   });
 
   const assignments = keys.map(k => `${k} = ?`).join(', ');
   db.prepare(`UPDATE ${table} SET ${assignments} WHERE id = ?`).run([...values, id]);
   res.sendStatus(200);
+});
+
+router.delete('/delete-poster/:animeId', async (req, res) => {
+  try {
+    const { Anime } = await import('../models/Anime.js');
+    const anime = await Anime.findByPk(req.params.animeId);
+    if (!anime) return res.status(404).json({ error: 'Anime not found' });
+
+    anime.poster = null;
+    anime.posterMimeType = null;
+    await anime.save();
+
+    res.status(200).json({ message: 'Poster removed successfully' });
+  } catch (err) {
+    console.error('Failed to delete poster:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Удалить строку
@@ -103,3 +155,4 @@ router.delete('/table/:tableName/:id', (req, res) => {
 });
 
 export default router;
+

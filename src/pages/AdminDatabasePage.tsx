@@ -51,12 +51,73 @@ const AdminDatabasePage: React.FC = () => {
     setTableData({ ...tableData, rows: updatedRows });
   };
 
+  const renderCell = (col: string, row: any, rowIndex: number) => {
+  const value = row[col];
+
+  // Обработка изображений (poster, avatar, др.)
+  if (['poster', 'avatar'].includes(col)) {
+    const isImage = typeof value === 'string' && value.startsWith('data:');
+
+    return (
+      <div className="flex flex-col items-center">
+        {isImage && (
+          <img
+            src={value}
+            alt={col}
+            className={col === 'poster' ? 'w-24 h-36 object-cover mb-1' : 'w-12 h-12 rounded-full object-cover mb-1'}
+          />
+        )}
+        {isImage && (
+          <button
+            onClick={() => {
+              handleCellChange(rowIndex, col, '');
+              saveRow({ ...row, [col]: '' });
+            }}
+            className="text-red-500 text-xs hover:underline"
+          >
+            Удалить
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // Выпадающий список для roleId
+  if (col === 'roleId') {
+    return (
+      <select
+        className="border rounded p-1"
+        value={value || ''}
+        onChange={(e) => {
+          const newVal = Number(e.target.value);
+          handleCellChange(rowIndex, col, newVal);
+        }}
+      >
+        <option value="">--</option>
+        {roles.map(role => (
+          <option key={role.id} value={role.id}>{role.name}</option>
+        ))}
+      </select>
+    );
+  }
+
+  // По умолчанию — текстовое поле
+  return (
+    <input
+      className="border rounded px-2 py-1 w-full"
+      value={value ?? ''}
+      onChange={(e) => handleCellChange(rowIndex, col, e.target.value)}
+    />
+  );
+};
+
   const saveRow = (row: any) => {
     fetch(`/api/db/table/${selectedTable}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(row),
     }).then(() => loadTableData(selectedTable));
+    console.log('poster type:', typeof row.poster, row.poster?.slice(0, 50));
   };
 
   const deleteRow = (rowId: number) => {
@@ -73,37 +134,7 @@ const AdminDatabasePage: React.FC = () => {
     }).then(() => loadTableData(selectedTable));
   };
 
-  const renderCell = (col: string, row: any, rowIndex: number) => {
-    if (col === 'avatar' && typeof row[col] === 'string' && row[col].startsWith('data:')) {
-      return <img src={row[col]} alt="avatar" className="w-12 h-12 object-cover rounded-full" />;
-    }
-
-    if (col === 'roleId') {
-      return (
-        <select
-          className="border rounded p-1"
-          value={row[col] || ''}
-          onChange={(e) => {
-            const value = Number(e.target.value);
-            handleCellChange(rowIndex, col, value);
-          }}
-        >
-          <option value="">--</option>
-          {roles.map(role => (
-            <option key={role.id} value={role.id}>{role.name}</option>
-          ))}
-        </select>
-      );
-    }
-
-    return (
-      <input
-        className="border rounded px-2 py-1 w-full"
-        value={row[col] ?? ''}
-        onChange={(e) => handleCellChange(rowIndex, col, e.target.value)}
-      />
-    );
-  };
+  
 
   const renderNewRowCell = (col: string) => {
     if (col === 'roleId') {
@@ -121,6 +152,24 @@ const AdminDatabasePage: React.FC = () => {
             <option key={role.id} value={role.id}>{role.name}</option>
           ))}
         </select>
+      );
+    }
+    if (col === 'poster') {
+      return (
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setNewRow({ ...newRow, [col]: reader.result as string });
+            };
+            reader.readAsDataURL(file); // base64 строка
+          }}
+        />
       );
     }
 
