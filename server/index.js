@@ -25,7 +25,7 @@ const __dirname = path.dirname(__filename);
 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(session({
   secret: 'secret-key',
@@ -39,8 +39,8 @@ app.use(session({
 }));
 
 app.use(cors({
-  origin: process.env.VITE_API_BASE_URL,
-  credentials: true, // <--- ВАЖНО
+  origin: process.env.VITE_API_BASE_URL || true,
+  credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
 
