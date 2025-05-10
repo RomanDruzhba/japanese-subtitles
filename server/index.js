@@ -25,7 +25,7 @@ const __dirname = path.dirname(__filename);
 
 
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5627;
+const PORT = process.env.PORT || 5730
 
 app.use(session({
   secret: 'secret-key',
