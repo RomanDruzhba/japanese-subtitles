@@ -7,7 +7,8 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -27,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const res = await fetch(`${SERVER_URL}/api/current-user`, {
+        const res = await fetch(`${API_BASE_URL}/api/current-user`, {
           credentials: 'include',
         });
 

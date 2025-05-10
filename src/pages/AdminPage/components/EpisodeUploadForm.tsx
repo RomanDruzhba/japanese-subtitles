@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { AdminVideo } from '../types';
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 interface Props {
   onUpload: (newVideo: AdminVideo) => void;
@@ -31,7 +32,7 @@ const EpisodeUploadForm: React.FC<Props> = ({ onUpload }) => {
 
     if (episode) headers['x-episode-title'] = episode;
 
-    await axios.post(`${SERVER_URL}/upload`, formData, { headers });
+    await axios.post(`${API_BASE_URL}/upload`, formData, { headers });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -7,7 +7,9 @@ interface UploadedListProps {
   onDelete: (video: AdminVideo) => void;
 }
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const normalize = (str: string) => str.replace(/_/g, ' ').toLowerCase();
 
 const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
@@ -17,7 +19,7 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
 
   const handleArchiveAnime = async (animeTitle: string) => {
     try {
-      await axios.post(`${SERVER_URL}/api/admin/archive-anime/${encodeURIComponent(animeTitle)}`);
+      await axios.post(`${API_BASE_URL}/api/admin/archive-anime/${encodeURIComponent(animeTitle)}`);
       alert(`Аниме "${animeTitle}" архивировано`);
     } catch (err) {
       alert(`Ошибка архивирования аниме: ${err}`);
@@ -26,7 +28,7 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
 
   const handleArchiveEpisode = async (episodeId: number) => {
     try {
-      await axios.post(`${SERVER_URL}/api/admin/archive-episode/${episodeId}`);
+      await axios.post(`${API_BASE_URL}/api/admin/archive-episode/${episodeId}`);
       alert(`Эпизод ID ${episodeId} архивирован`);
     } catch (err) {
       alert(`Ошибка архивирования эпизода: ${err}`);
@@ -35,7 +37,7 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
 
   const handleDeleteFile = async (filePath: string) => {
     try {
-      await axios.delete(`${SERVER_URL}/api/admin/delete-file`, {
+      await axios.delete(`${API_BASE_URL}/api/admin/delete-file`, {
         data: { filePath }
       } as any);
       alert('Файл удалён');
