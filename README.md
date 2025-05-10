@@ -1,1 +1,8 @@
-# japanese-subtitles
+# japanese-subtitles# japanese-player
+Видеоплеер с интерактивными субтитрами, нажатие по которым выведет справку о нажатом слове или кандзи (иероглифе). 
+
+# Запуск проекта
+
+```shell
+npm run start:prod
+```
