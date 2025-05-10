@@ -5,6 +5,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -17,7 +18,7 @@ import adminoutes from './routes/admin.js';
 
 import session from 'express-session';
 
-
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,7 +39,7 @@ app.use(session({
 }));
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.VITE_API_BASE_URL,
   credentials: true, // <--- ВАЖНО
 }));
 app.use(express.json({ limit: '10mb' }));

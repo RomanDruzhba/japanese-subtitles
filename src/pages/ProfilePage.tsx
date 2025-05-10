@@ -16,7 +16,8 @@ interface WatchedEpisode {
   watched: boolean;
 }
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const ProfilePage: React.FC = () => {
   const [nickname, setNickname] = useState('');
@@ -35,12 +36,12 @@ const ProfilePage: React.FC = () => {
     setNickname(user.nickname || '');
     setAvatarUrl(user.avatarUrl || '');
 
-    fetch(`${SERVER_URL}/api/users/${user.id}/avatar`)
+    fetch(`${API_BASE_URL}/api/users/${user.id}/avatar`)
       .then(res => res.blob())
       .then(imageBlob => setAvatarUrl(URL.createObjectURL(imageBlob)))
       .catch(err => console.error('Ошибка загрузки аватара', err));
 
-    fetch(`${SERVER_URL}/api/videos`)
+    fetch(`${API_BASE_URL}/api/videos`)
       .then(res => res.json())
       .then(data => {
         const map: Record<string, { animeTitle: string; episodeTitle: string }> = {};
@@ -50,7 +51,7 @@ const ProfilePage: React.FC = () => {
         setVideoMap(map);
       });
 
-    fetch(`${SERVER_URL}/api/users/${user.id}/profile`)
+    fetch(`${API_BASE_URL}/api/users/${user.id}/profile`)
       .then(res => res.json())
       .then(data => {
         setComments(data.comments || []);
@@ -72,7 +73,7 @@ const ProfilePage: React.FC = () => {
       formData.append('nickname', nickname);
       if (selectedFile) formData.append('avatar', selectedFile);
 
-      const response = await fetch(`${SERVER_URL}/api/users/${user.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${user.id}`, {
         method: 'PUT',
         body: formData,
       });
@@ -96,7 +97,7 @@ const ProfilePage: React.FC = () => {
     if (!user) return;
 
     try {
-      const response = await fetch(`${SERVER_URL}/api/watched-episodes/${episodeId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/watched-episodes/${episodeId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ watched: !currentStatus }),
@@ -116,7 +117,7 @@ const ProfilePage: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${SERVER_URL}/api/logout`, {
+      await fetch(`${API_BASE_URL}/api/logout`, {
         method: 'POST',
         credentials: 'include',
       });

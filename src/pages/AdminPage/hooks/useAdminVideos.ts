@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { AdminVideo } from '../types';
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export const useAdminVideos = () => {
   const [videos, setVideos] = useState<AdminVideo[]>([]);
 
   const refreshAllVideos = async () => {
     try {
-      const res = await axios.get<AdminVideo[]>(`${SERVER_URL}/api/videos`);
+      const res = await axios.get<AdminVideo[]>(`${API_BASE_URL}/api/videos`);
       setVideos(res.data);
     } catch (err) {
       console.error('Ошибка при загрузке всех эпизодов:', err);
@@ -27,7 +28,7 @@ export const useAdminVideos = () => {
     try {
       await axios.request({
         method: 'DELETE',
-        url: `${SERVER_URL}/delete`,
+        url: `${API_BASE_URL}/delete`,
         headers: { 'Content-Type': 'application/json' },
         data: { animeTitle: safeAnime, episodeTitle: safeEpisode },
       });

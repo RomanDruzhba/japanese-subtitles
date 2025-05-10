@@ -5,7 +5,8 @@ import CommentsSection from '../components/comments/CommentsSection';
 import { Subtitle, DictionaryEntry } from '../types';
 import DictionaryModal from '../DictionaryModal';
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const DICTIONARY_FILES_COUNT = 13; // Количество файлов словарей
 
@@ -30,7 +31,7 @@ const VideoPage: React.FC = () => {
       try {
 
         // 1. Загружаем данные видео
-        const videosRes = await fetch(`${SERVER_URL}/api/videos`);
+        const videosRes = await fetch(`${API_BASE_URL}/api/videos`);
         const videos = await videosRes.json();
 
         const video = videos.find((v: any) => v.id === videoId);
@@ -45,7 +46,7 @@ const VideoPage: React.FC = () => {
 
         for (let i = 1; i <= DICTIONARY_FILES_COUNT; i++) {
           dictionaryPromises.push(
-            fetch(`${SERVER_URL}/mock/term_bank_${i}.json`)
+            fetch(`${API_BASE_URL}/mock/term_bank_${i}.json`)
               .then(res => res.json())
               .then(data => {
                 setLoadingProgress(Math.round((i / DICTIONARY_FILES_COUNT) * 100));
@@ -62,9 +63,9 @@ const VideoPage: React.FC = () => {
         // 3. Инициализируем видеоплеер
         const player = document.createElement('japanese-video-player') as JapaneseVideoPlayer;
 
-        player.src = `${SERVER_URL}${video.videoUrl}`;
+        player.src = `${API_BASE_URL}${video.videoUrl}`;
         player.subtitles = video.subtitles.map((sub: any): Subtitle => ({
-          src: `${SERVER_URL}${sub.url}`,
+          src: `${API_BASE_URL}${sub.url}`,
           srclang: sub.lang,
           label: sub.lang.toUpperCase(),
         }));

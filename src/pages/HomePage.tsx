@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 interface Anime {
   id: number;
@@ -29,7 +30,7 @@ const HomePage: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/animes`)
+    fetch(`${API_BASE_URL}/api/animes`)
       .then(res => res.json())
       .then(data => setAnimes(data))
       .catch(err => console.error('Ошибка при загрузке аниме:', err));
@@ -38,7 +39,7 @@ const HomePage: React.FC = () => {
   const handleAnimeClick = async (anime: Anime) => {
     setSelectedAnime(anime);
     try {
-      const res = await fetch(`${SERVER_URL}/api/animes/${anime.id}/episodes`);
+      const res = await fetch(`${API_BASE_URL}/api/animes/${anime.id}/episodes`);
       const data = await res.json();
       setEpisodes(data);
     } catch (error) {
@@ -133,7 +134,7 @@ const HomePage: React.FC = () => {
                 <div className="border border-gray-200 rounded-xl bg-white shadow p-4 hover:shadow-md transition">
                   <h4 className="text-lg font-medium mb-2">{ep.title}</h4>
                   <video
-                    src={`${SERVER_URL}${ep.videoUrl}`}
+                    src={`${API_BASE_URL}${ep.videoUrl}`}
                     controls
                     className="w-full rounded-md mb-2"
                   />

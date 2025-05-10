@@ -5,6 +5,8 @@ import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
 import commonjs from '@rollup/plugin-commonjs';
 import postcss from 'rollup-plugin-postcss';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export default {
   input: 'src/japanese_video_player.ts',
@@ -40,6 +42,7 @@ export default {
     }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || ''),
       preventAssignment: true,
     }),
   ]

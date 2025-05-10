@@ -6,7 +6,8 @@ type GenreOrTag = {
   name: string;
 };
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const DescriptionUploadForm: React.FC = () => {
   const [animeTitle, setAnimeTitle] = useState('');
@@ -20,8 +21,8 @@ const DescriptionUploadForm: React.FC = () => {
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
-    axios.get<GenreOrTag[]>(`${SERVER_URL}/genres`).then((res) => setGenres(res.data));
-    axios.get<GenreOrTag[]>(`${SERVER_URL}/tags`).then((res) => setTags(res.data));
+    axios.get<GenreOrTag[]>(`${API_BASE_URL}/genres`).then((res) => setGenres(res.data));
+    axios.get<GenreOrTag[]>(`${API_BASE_URL}/tags`).then((res) => setTags(res.data));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +47,7 @@ const DescriptionUploadForm: React.FC = () => {
     formData.append('finished', String(finished));
 
     try {
-      await axios.post(`${SERVER_URL}/upload/description`, formData, {
+      await axios.post(`${API_BASE_URL}/upload/description`, formData, {
         headers: {
           'x-anime-title': safeAnime,
           'x-type': 'poster',
