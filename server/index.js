@@ -107,7 +107,7 @@ app.get('*', (req, res) => {
 
 console.log('PORT FROM ENV:', process.env.PORT);
 console.log('FINAL PORT:', PORT);
-app.listen(PORT, () => {
-  console.log(`Сервер запущен на http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Сервер запущен на http://0.0.0.0:${PORT}`);
 });
 
