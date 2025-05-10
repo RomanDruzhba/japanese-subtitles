@@ -17,7 +17,8 @@ interface Props {
   videoId: string;
 }
 
-const SERVER_URL = 'http://localhost:3000';
+// const SERVER_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 const COMMENTS_PER_PAGE = 5;
 
 const CommentsSection: React.FC<Props> = ({ videoId }) => {
@@ -26,7 +27,7 @@ const CommentsSection: React.FC<Props> = ({ videoId }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/comments/${videoId}`, { credentials: 'include' })
+    fetch(`${API_BASE_URL}/api/comments/${videoId}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -54,7 +55,7 @@ const CommentsSection: React.FC<Props> = ({ videoId }) => {
       return;
     }
 
-    const res = await fetch(`${SERVER_URL}/api/comments`, {
+    const res = await fetch(`${API_BASE_URL}/api/comments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
