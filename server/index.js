@@ -104,6 +104,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 
+
+console.log('PORT FROM ENV:', process.env.PORT);
+console.log('FINAL PORT:', PORT);
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
