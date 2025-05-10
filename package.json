@@ -17,7 +17,6 @@
     "start": "run-p serve watch server",
     "start:prod": "npm run build && node server/index.js",
     "deploy": "gh-pages -d dist",
-    "homepage": "https://RomanDruzhba.github.io/japanese-subtitles",
     "server": "node server/index.js",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
