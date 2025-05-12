@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { AdminVideo } from '../types';
 
-// const SERVER_URL = 'http://localhost:3000';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 interface Props {

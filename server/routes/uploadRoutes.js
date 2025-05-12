@@ -39,21 +39,19 @@ const upload = multer({ storage });
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const { file } = req;
-    const animeTitle = req.body.animeTitle?.toString().trim().replace(/\s+/g, ' ');
-    const episodeTitle = req.body.episodeTitle?.toString().trim().replace(/\s+/g, ' ');
-    const type = req.body.type;
+    const animeTitle = req.headers['x-anime-title']?.toString().trim().replace(/\s+/g, ' ');
+    const episodeTitle = req.headers['x-episode-title']?.toString().trim().replace(/\s+/g, ' ');
+    const type = req.headers['x-type'];
 
     if (!animeTitle || !type) {
       return res.status(400).json({ error: 'Missing anime title or type header' });
     }
 
-    // Найти или создать аниме
     const [anime] = await Anime.findOrCreate({
       where: { title: animeTitle },
     });
 
-    // Если это видео — создаём эпизод
-    if (type === 'video' && episodeTitle) {
+    if (episodeTitle) {
       await Episode.findOrCreate({
         where: {
           title: episodeTitle,
@@ -66,7 +64,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       });
     }
 
-    
+    res.json({ success: true, file: file.filename });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Ошибка при сохранении файла или записи в БД' });

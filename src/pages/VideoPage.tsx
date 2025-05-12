@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { JapaneseVideoPlayer } from '../japanese_video_player';
 import CommentsSection from '../components/comments/CommentsSection';
 import { Subtitle, DictionaryEntry } from '../types';
 import DictionaryModal from '../DictionaryModal';
+import StarRating from '../components/StarRating';
+import { getCurrentUser } from '../auth';
 
-// const SERVER_URL = 'http://localhost:3000';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const DICTIONARY_FILES_COUNT = 13; // Количество файлов словарей
@@ -20,10 +21,20 @@ const VideoPage: React.FC = () => {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
 
+  const [allEpisodes, setAllEpisodes] = useState<any[]>([]);
+  const [currentEpisode, setCurrentEpisode] = useState<any | null>(null);
+  const [userRating, setUserRating] = useState<number>(0);
+  const [averageRating, setAverageRating] = useState<number | null>(null);
+  const currentUser = getCurrentUser(); // получение текущего пользователя
+  const userId = currentUser?.id;
+  const navigate = useNavigate();
+
   const dictionaryRef = useRef<DictionaryEntry[]>([]);
 
   useEffect(() => {
-    if (!videoId) return;
+    console.log('searchParams изменились:', searchParams.toString());
+    const vid = searchParams.get('vid');
+    if (!vid) return;
 
     const loadAll = async () => {
       setIsLoading(true);
@@ -40,6 +51,18 @@ const VideoPage: React.FC = () => {
           setIsLoading(false);
           return;
         }
+
+        setAllEpisodes(videos);
+        setCurrentEpisode(video);
+
+        // Получаем рейтинг
+        const ratingRes = await fetch(`${API_BASE_URL}/api/episodes/${video.id}/rating?userId=${userId}`);
+        const { average, user } = await ratingRes.json();
+        setAverageRating(average);
+        setUserRating(user);
+
+        console.log('Список видео с сервера:', videos);
+        console.log('Ищу videoId:', videoId);
 
         // 2. Загружаем все словари
         const dictionaryPromises = [];
@@ -122,13 +145,82 @@ const VideoPage: React.FC = () => {
         containerRef.current.innerHTML = '';
       }
     };
-  }, [videoId]);
+  }, [searchParams]);
+
+  const handleSetRating = async (rating: number) => {
+    if (!currentEpisode || !userId) {
+      alert('Вы должны войти, чтобы поставить оценку');
+      return;
+    }
+
+    await fetch(`${API_BASE_URL}/api/episodes/${currentEpisode.id}/rating`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, rating }),
+      credentials: 'include',
+    });
+
+    setUserRating(rating);
+
+    const ratingRes = await fetch(`${API_BASE_URL}/api/episodes/${currentEpisode.id}/rating`);
+    const { average } = await ratingRes.json();
+    setAverageRating(average);
+  };
+
+  const sameAnimeEpisodes = allEpisodes.filter(
+    ep => ep.animeTitle === currentEpisode?.animeTitle
+  );
+  const currentIndex = sameAnimeEpisodes.findIndex(
+    ep => ep.id === currentEpisode?.id
+  );
+
+  const handleNext = () => {
+    if (currentIndex === -1 || currentIndex >= sameAnimeEpisodes.length - 1) return;
+    const nextEpisode = sameAnimeEpisodes[currentIndex + 1];
+    navigate(`/video?vid=${nextEpisode.id}`);
+  };
+
+  const handlePrev = () => {
+    if (currentIndex <= 0) return;
+    const prevEpisode = sameAnimeEpisodes[currentIndex - 1];
+    navigate(`/video?vid=${prevEpisode.id}`);
+  };
+
+
 
   return (
     <div>
       <h2>Просмотр видео</h2>
       <div ref={containerRef} />
-      {videoId && <CommentsSection videoId={videoId} />}
+      <div className="flex gap-4 mt-4">
+        {currentIndex > 0 && (
+          <button
+            onClick={handlePrev}
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+          >
+            Предыдущая серия
+          </button>
+        )}
+        {currentIndex < sameAnimeEpisodes.length - 1 && (
+          <button
+            onClick={handleNext}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Следующая серия
+          </button>
+        )}
+      </div>
+      {currentUser && (
+        <div className="flex items-center gap-2 mt-4">
+          <span>Ваша оценка:</span>
+          <StarRating value={userRating} onChange={handleSetRating} />
+        </div>
+      )}
+
+      {averageRating !== null && (
+        <p className="mt-2">Общая оценка: {averageRating.toFixed(1)} ★</p>
+      )}
+      {videoId && <CommentsSection key={videoId} videoId={videoId} />}
       {selectedWord && (
         <DictionaryModal
           word={selectedWord}

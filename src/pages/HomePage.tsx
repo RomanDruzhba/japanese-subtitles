@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-// const SERVER_URL = 'http://localhost:3000';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 interface Anime {
@@ -133,14 +132,13 @@ const HomePage: React.FC = () => {
               <Link to={`/video?vid=${ep.id}`} key={ep.id} className="text-inherit no-underline">
                 <div className="border border-gray-200 rounded-xl bg-white shadow p-4 hover:shadow-md transition">
                   <h4 className="text-lg font-medium mb-2">{ep.title}</h4>
-                  <video
-                    src={`${API_BASE_URL}${ep.videoUrl}`}
-                    controls
-                    className="w-full rounded-md mb-2"
-                  />
-                  <p className="text-sm text-gray-600">
-                    Субтитры: {ep.subtitles?.map(s => s.lang.toUpperCase()).join(', ')}
+                  <p className="text-sm text-gray-700 mb-1">
+                    Субтитры: {ep.subtitles?.map(s => s.lang.toUpperCase()).join(', ') || 'нет'}
                   </p>
+                  <video
+                    src={`${API_BASE_URL}${ep.videoUrl}#t=15`}
+                    className="w-full h-48 object-cover rounded-md mb-2"
+                  />
                 </div>
               </Link>
             ))}

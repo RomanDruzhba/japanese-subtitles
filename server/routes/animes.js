@@ -14,6 +14,7 @@ const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
 router.get('/', async (req, res) => {
   try {
     const animes = await Anime.findAll({
+      where: { archived: false },
       include: [Genre, Tag],
       order: [['title', 'ASC']],
     });
@@ -38,7 +39,9 @@ router.get('/', async (req, res) => {
 // GET /api/animes/:id/episodes — эпизоды из ФС по id аниме
 router.get('/:id/episodes', async (req, res) => {
   try {
-    const anime = await Anime.findByPk(req.params.id);
+    const anime = await Anime.findOne({
+      where: { id: req.params.id, archived: false },
+    });
     if (!anime) {
       return res.status(404).json({ error: 'Аниме не найдено' });
     }

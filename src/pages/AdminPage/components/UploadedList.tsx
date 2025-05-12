@@ -7,7 +7,6 @@ interface UploadedListProps {
   onDelete: (video: AdminVideo) => void;
 }
 
-// const SERVER_URL = 'http://localhost:3000';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const normalize = (str: string) => str.replace(/_/g, ' ').toLowerCase();

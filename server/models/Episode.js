@@ -10,7 +10,7 @@ Episode.init({
     allowNull: false,
   },
   poster: {
-    type: DataTypes.BLOB('long'),
+    type: DataTypes.BLOB,
     allowNull: true,
   },
   rating: {
