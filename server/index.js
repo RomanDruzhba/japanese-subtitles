@@ -1,5 +1,4 @@
 // server/index.js
-console.log('=== СЕРВЕР ЗАПУСКАЕТСЯ ===');
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -17,7 +16,7 @@ import animeRoutes from './routes/animes.js';
 import adminoutes from './routes/admin.js';
 
 import session from 'express-session';
-console.log('=== СЕРВЕР ЗАПУСКАЕТСЯ 2 ===');
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -105,9 +104,7 @@ app.get('*', (req, res) => {
 });
 
 
-console.log('PORT FROM ENV:', process.env.PORT);
-console.log('FINAL PORT:', PORT);
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Сервер запущен на http://0.0.0.0:${PORT}`);
+  console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
 

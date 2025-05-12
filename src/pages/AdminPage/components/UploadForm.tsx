@@ -27,7 +27,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUpload }) => {
             activeTab === 'description' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'
           }`}
         >
-          Добавление описания
+          Описание аниме
         </button>
       </div>
 
