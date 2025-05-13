@@ -221,13 +221,11 @@ export class JpLine extends LitElement {
     this.clearLine();
     this.tokens = this.parseTokens(line);
     this.active = true;
-    console.log(`Updating line for lang=${this.lang}:`, line);
   }
 
   private clearLine() {
     this.active = false;
     this.tokens = [];
-    console.log(`Clearing line for lang=${this.lang}`);
   }
 
   private parseTokens(line: string): string[] {
