@@ -63,12 +63,15 @@ export class JpSubtitles extends LitElement {
 
   @property({ type: Function })
     handleTokenClick?: (token: string) => void;
-
+  
   public render() {
     if (!this.textTracks) {
       return html``;
     }
-
+    console.log("Rendering subtitles:", Array.from(this.textTracks).map((t) => ({
+      lang: t.language,
+      active: t.isActive
+    })));
     return html`
       ${Array.from(this.textTracks)
     .filter((track) => track.isActive !== 'false')

@@ -11,6 +11,7 @@ const styles = css`
     padding: 4px 8px;
     letter-spacing: 1px;
     transition: all 150ms ease-in-out;
+    z-index: 999;
   }
 
   :host([active]) {
