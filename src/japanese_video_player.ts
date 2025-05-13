@@ -133,36 +133,36 @@ export class JapaneseVideoPlayer extends LitElement {
     }
 
     switch (event.key) {
-      case ' ':
-        event.preventDefault();
-        this.togglePlay();
-        this.showOverlay(this.isPlaying ? '⏸ Пауза' : '▶️ Воспроизведение');
-        break;
-      case 'ArrowLeft':
-        this.seekRelative(-5);
-        this.showOverlay(`⏪ −5с`);
-        break;
-      case 'ArrowRight':
-        this.seekRelative(5);
-        this.showOverlay(`⏩ +5с`);
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        this.setVolume(this.volume + 0.1);
-        this.showOverlay(`🔊 ${Math.round(this.volume * 100)}%`);
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        this.setVolume(this.volume - 0.1);
-        this.showOverlay(`🔉 ${Math.round(this.volume * 100)}%`);
-        break;
-      case 'f':
-      case 'F':
-      case 'А':
-      case 'а':
-        this.toggleFullscreen();
+    case ' ':
+      event.preventDefault();
+      this.togglePlay();
+      this.showOverlay(this.isPlaying ? '⏸ Пауза' : '▶️ Воспроизведение');
+      break;
+    case 'ArrowLeft':
+      this.seekRelative(-5);
+      this.showOverlay('⏪ −5с');
+      break;
+    case 'ArrowRight':
+      this.seekRelative(5);
+      this.showOverlay('⏩ +5с');
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      this.setVolume(this.volume + 0.1);
+      this.showOverlay(`🔊 ${Math.round(this.volume * 100)}%`);
+      break;
+    case 'ArrowDown':
+      event.preventDefault();
+      this.setVolume(this.volume - 0.1);
+      this.showOverlay(`🔉 ${Math.round(this.volume * 100)}%`);
+      break;
+    case 'f':
+    case 'F':
+    case 'А':
+    case 'а':
+      this.toggleFullscreen();
 
-        break;
+      break;
     }
   };
 
@@ -204,7 +204,7 @@ export class JapaneseVideoPlayer extends LitElement {
           controlsList="nodownload"
         >
           ${this.subtitles.map(
-            (subtitle: Subtitle) => html`
+    (subtitle: Subtitle) => html`
               <track
                 id="${subtitle.srclang}"
                 kind="subtitles"
@@ -214,7 +214,7 @@ export class JapaneseVideoPlayer extends LitElement {
                 ${subtitle.default ? 'default' : ''}
               >
             `
-          )}
+  )}
           Your browser does not support the video tag.
         </video>
         <div id="controls" class="${this.showControls ? '' : 'hidden'}">
