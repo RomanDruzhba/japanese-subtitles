@@ -32,7 +32,7 @@ const VideoPage: React.FC = () => {
   const dictionaryRef = useRef<DictionaryEntry[]>([]);
 
   useEffect(() => {
-    console.log('searchParams изменились:', searchParams.toString());
+    // console.log('searchParams изменились:', searchParams.toString());
     const vid = searchParams.get('vid');
     if (!vid) return;
 
@@ -61,8 +61,8 @@ const VideoPage: React.FC = () => {
         setAverageRating(average);
         setUserRating(user);
 
-        console.log('Список видео с сервера:', videos);
-        console.log('Ищу videoId:', videoId);
+        // console.log('Список видео с сервера:', videos);
+        // console.log('Ищу videoId:', videoId);
 
         // 2. Загружаем все словари
         const dictionaryPromises = [];
@@ -81,7 +81,7 @@ const VideoPage: React.FC = () => {
         const dicts = await Promise.all(dictionaryPromises);
         const combinedDictionary = dicts.flat();
         dictionaryRef.current = combinedDictionary;
-        console.log(`Загружено ${combinedDictionary.length} словарных записей из ${DICTIONARY_FILES_COUNT} файлов`);
+        // console.log(`Загружено ${combinedDictionary.length} словарных записей из ${DICTIONARY_FILES_COUNT} файлов`);
 
         // 3. Инициализируем видеоплеер
         const player = document.createElement('japanese-video-player') as JapaneseVideoPlayer;
@@ -95,11 +95,11 @@ const VideoPage: React.FC = () => {
 
         player.handleTokenClick = (token: string) => {
           const currentDict = dictionaryRef.current;
-          console.log('Обработчик токена срабатывает по:', token);
-          console.log('dictionary сейчас:', currentDict);
+          // console.log('Обработчик токена срабатывает по:', token);
+          // console.log('dictionary сейчас:', currentDict);
 
           if (!currentDict.length) {
-            console.warn('Словарь ещё не загружен');
+            // console.warn('Словарь ещё не загружен');
             return;
           }
 
@@ -132,9 +132,9 @@ const VideoPage: React.FC = () => {
           containerRef.current.appendChild(player);
         }
 
-        console.log('Плеер вставлен:', player);
+        // console.log('Плеер вставлен:', player);
       } catch (err) {
-        console.error('Ошибка загрузки:', err);
+        // console.error('Ошибка загрузки:', err);
       }
     };
 

@@ -158,6 +158,24 @@ export class JpLine extends LitElement {
     `;
   }
 
+  updated(changedProps: Map<string, unknown>) {
+    if (changedProps.has('textTrack')) {
+      const oldTrack = changedProps.get('textTrack') as TextTrack;
+      if (oldTrack) {
+        oldTrack.removeEventListener('cuechange', this.handleCueChange);
+      }
+      if (this.textTrack) {
+        this.textTrack.addEventListener('cuechange', this.handleCueChange);
+      }
+    }
+    if (changedProps.has('textTrack') || changedProps.has('lang')) {
+      // очистить строку, если трек стал неактивным
+      if ((this.textTrack as any)?.isActive === 'false') {
+        this.clearLine();
+      }
+    }
+  }
+
   public connectedCallback() {
     super.connectedCallback();
     this.textTrack.addEventListener('cuechange', this.handleCueChange);
@@ -170,6 +188,9 @@ export class JpLine extends LitElement {
 
   private handleCueChange(event: Event) {
     const textTrack = event.target as TextTrack;
+      if ((textTrack as any).isActive !== 'true') {
+        return;
+      }
     const vttCue = textTrack.activeCues?.[0] as VTTCue;
     if (!vttCue) return;
 
@@ -200,11 +221,13 @@ export class JpLine extends LitElement {
     this.clearLine();
     this.tokens = this.parseTokens(line);
     this.active = true;
+    console.log(`Updating line for lang=${this.lang}:`, line);
   }
 
   private clearLine() {
     this.active = false;
     this.tokens = [];
+    console.log(`Clearing line for lang=${this.lang}`);
   }
 
   private parseTokens(line: string): string[] {

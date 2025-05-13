@@ -7,6 +7,7 @@ const styles = css`
     top: 8px;
     right: 8px;
     color: white;
+    z-index: 999;
   }
 
   #dropdown {
