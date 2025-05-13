@@ -188,9 +188,9 @@ export class JpLine extends LitElement {
 
   private handleCueChange(event: Event) {
     const textTrack = event.target as TextTrack;
-      if ((textTrack as any).isActive !== 'true') {
-        return;
-      }
+    if ((textTrack as any).isActive !== 'true') {
+      return;
+    }
     const vttCue = textTrack.activeCues?.[0] as VTTCue;
     if (!vttCue) return;
 

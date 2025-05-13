@@ -68,7 +68,7 @@ export class JpSubtitles extends LitElement {
     if (!this.textTracks) {
       return html``;
     }
-    console.log("Rendering subtitles:", Array.from(this.textTracks).map((t) => ({
+    console.log('Rendering subtitles:', Array.from(this.textTracks).map((t) => ({
       lang: t.language,
       active: t.isActive
     })));

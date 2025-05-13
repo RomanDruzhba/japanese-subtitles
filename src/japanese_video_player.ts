@@ -174,7 +174,7 @@ export class JapaneseVideoPlayer extends LitElement {
           controlsList="nodownload"
         >
           ${this.subtitles.map(
-            (subtitle: Subtitle) => html`
+    (subtitle: Subtitle) => html`
               <track
                 id="${subtitle.srclang}"
                 kind="subtitles"
@@ -184,7 +184,7 @@ export class JapaneseVideoPlayer extends LitElement {
                 ${subtitle.default ? 'default' : ''}
               >
             `
-          )}
+  )}
           Your browser does not support the video tag.
         </video>
 
