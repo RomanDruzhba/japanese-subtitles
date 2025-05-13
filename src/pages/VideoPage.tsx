@@ -189,16 +189,18 @@ const VideoPage: React.FC = () => {
 
 
   return (
-    <div>
-      <h2>Просмотр видео</h2>
-      <div ref={containerRef} />
-      <div className="flex gap-4 mt-4">
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      <h2 className="text-2xl font-semibold mb-4 text-center">Просмотр видео</h2>
+
+      <div ref={containerRef} className="rounded overflow-hidden shadow-lg border mb-6" />
+
+      <div className="flex justify-center gap-4 mb-4">
         {currentIndex > 0 && (
           <button
             onClick={handlePrev}
             className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
           >
-            Предыдущая серия
+            ⬅ Предыдущая серия
           </button>
         )}
         {currentIndex < sameAnimeEpisodes.length - 1 && (
@@ -206,21 +208,28 @@ const VideoPage: React.FC = () => {
             onClick={handleNext}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Следующая серия
+            Следующая серия ➡
           </button>
         )}
       </div>
+
       {currentUser && (
-        <div className="flex items-center gap-2 mt-4">
-          <span>Ваша оценка:</span>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="font-medium">Ваша оценка:</span>
           <StarRating value={userRating} onChange={handleSetRating} />
         </div>
       )}
 
       {averageRating !== null && (
-        <p className="mt-2">Общая оценка: {averageRating.toFixed(1)} ★</p>
+        <p className="mb-6 text-gray-700">Общая оценка: {averageRating.toFixed(1)} ★</p>
       )}
-      {videoId && <CommentsSection key={videoId} videoId={videoId} />}
+
+      {videoId && (
+        <div className="mb-8">
+          <CommentsSection key={videoId} videoId={videoId} />
+        </div>
+      )}
+
       {selectedWord && (
         <DictionaryModal
           word={selectedWord}
