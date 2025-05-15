@@ -10,6 +10,7 @@ import AdminPage from '../pages/AdminPage/AdminPage';
 import ProfilePage from '../pages/ProfilePage';
 import AdminDatabasePage from '../pages/AdminDatabasePage';
 import AdminRoute from './AdminRoute';
+import AdminComplaintsPage from '../pages/AdminComplaintsPage';
 
 
 const AppRouter: React.FC = () => {
@@ -25,6 +26,7 @@ const AppRouter: React.FC = () => {
           <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
           <Route path="/database" element={<AdminRoute><AdminDatabasePage /></AdminRoute>} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/complaint" element={<AdminComplaintsPage />} />
         </Routes>
       </Layout>
     </Router>

@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { getCurrentUser } from '../../auth';
+import UserActionsPopover from './UserActionsPopover';
 
 interface Comment {
   id: number;
   text: string;
   user: {
+    id: number;
     nickname: string;
     avatarUrl: string;
   };
@@ -104,14 +106,11 @@ const CommentsSection: React.FC<Props> = ({ videoId }) => {
             key={c.id}
             className="flex items-start gap-3 bg-white shadow p-4 rounded-xl"
           >
-            <img
-              src={
-                c.isAnonymous || !c.user?.avatarUrl
-                  ? './default-avatar.jpg'
-                  : c.user.avatarUrl
-              }
-              alt="avatar"
-              className="w-10 h-10 rounded-full object-cover"
+            <UserActionsPopover
+              userId={c.user?.id}
+              nickname={c.user?.nickname}
+              avatarUrl={c.user?.avatarUrl}
+              commentId={c.id}
             />
             <div>
               <strong className="block mb-1">{c.isAnonymous ? 'Аноним' : c.user?.nickname}</strong>
