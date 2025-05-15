@@ -26,6 +26,7 @@ const Header: React.FC = () => {
         {currentUser?.roleId === 3 && <div className="flex w-full justify-around col-span-2">
           <Link to="/admin" className={link_style}>Админ панель</Link>
           <Link to="/database" className={link_style}>База данных</Link>
+          <Link to="/complaint" className={link_style}>Обработка жалоб</Link>
         </div> }
       </nav>
     </header>

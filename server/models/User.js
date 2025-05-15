@@ -29,6 +29,18 @@ User.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  isBanned: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  unbanDate: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  warningCount: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
 }, { sequelize: db, modelName: 'user' });
 
 

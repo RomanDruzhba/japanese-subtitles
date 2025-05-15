@@ -5,10 +5,64 @@ import { Anime } from '../models/Anime.js';
 import { Episode } from '../models/Episode.js';
 import { Genre } from '../models/Genre.js';
 import { Tag } from '../models/Tag.js';
+import { AnimeRating } from '../models/AnimeRating.js';
+import { User } from '../models/User.js';
+
 
 const router = express.Router();
 
 const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
+
+
+// GET средний рейтинг и рейтинг пользователя
+router.get('/:id/rating', async (req, res) => {
+  const { id } = req.params;
+  const { userId } = req.query;
+
+  const anime = await Anime.findByPk(id);
+  if (!anime) return res.status(400).json({ error: 'Invalid anime id' });
+
+  const ratings = await AnimeRating.findAll({ where: { animeId: id } });
+  const average = ratings.length ? ratings.reduce((a, b) => a + b.rating, 0) / ratings.length : 0;
+
+  let user = null;
+  if (userId) {
+    const userRating = await AnimeRating.findOne({ where: { animeId: id, userId } });
+    user = userRating?.rating || null;
+  }
+
+  res.json({ average, user });
+});
+
+// POST поставить или обновить рейтинг
+router.post('/:id/rating', async (req, res) => {
+  const { id } = req.params;
+  const { userId, rating } = req.body;
+
+  const anime = await Anime.findByPk(id);
+  if (!anime) return res.status(400).json({ error: 'Invalid anime id' });
+
+  const user = await User.findByPk(userId);
+  if (!user) return res.status(400).json({ error: 'Invalid userId' });
+
+  const [userRating, created] = await AnimeRating.findOrCreate({
+    where: { animeId: id, userId },
+    defaults: { rating },
+  });
+
+  if (!created) {
+    userRating.rating = rating;
+    await userRating.save();
+  }
+
+  const ratings = await AnimeRating.findAll({ where: { animeId: id } });
+  const average = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
+
+  anime.rating = average;
+  await anime.save();
+
+  res.json({ success: true });
+});
 
 // GET /api/animes — список всех аниме с жанрами и тегами
 router.get('/', async (req, res) => {
