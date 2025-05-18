@@ -15,6 +15,7 @@ import commentsRoutes from './routes/comments.js';
 import animeRoutes from './routes/animes.js';
 import adminRoutes from './routes/admin.js';
 import complaintsRoutes from './routes/complaints.js';
+import cardsRoutes from './routes/cards.js';
 
 import session from 'express-session';
 
@@ -53,7 +54,7 @@ app.use('/api/comments', commentsRoutes);
 app.use('/api/animes', animeRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/complaints', complaintsRoutes);
-
+app.use('/api/cards', cardsRoutes);
 
 const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
 

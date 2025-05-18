@@ -25,7 +25,7 @@ const style = css`
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      z-index: 1000;
+      z-index: 8;
       background: rgba(0, 0, 0, 0.4);
       padding: 8px;
       border-radius: 8px;
@@ -51,7 +51,7 @@ const style = css`
 
     #overlay {
       position: absolute;
-      top: 40%;
+      top: 10%;
       left: 50%;
       transform: translate(-50%, -50%);
       background: rgba(0, 0, 0, 0.75);
@@ -62,7 +62,7 @@ const style = css`
       opacity: 0;
       transition: opacity 0.3s ease;
       pointer-events: none;
-      z-index: 2000;
+      z-index: 8;
     }
 
     #overlay.visible {

@@ -60,67 +60,102 @@ const AdminComplaintsPage: React.FC = () => {
     fetchComplaints();
   };
 
+  const [columnWidths, setColumnWidths] = useState<string[]>([
+    '200px', '200px', '300px', '300px', '180px',
+  ]);
+
+  const handleMouseDown = (e: React.MouseEvent, colIndex: number) => {
+    e.preventDefault();
+
+    const startX = e.clientX;
+    const startWidth = parseInt(columnWidths[colIndex], 10);
+
+    const onMouseMove = (e: MouseEvent) => {
+      const newWidth = startWidth + (e.clientX - startX);
+      setColumnWidths((prevWidths) =>
+        prevWidths.map((w, i) => (i === colIndex ? `${newWidth}px` : w))
+      );
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Жалобы пользователей</h2>
       <div className="overflow-auto">
-        <table className="table-auto min-w-full bg-white border border-gray-200 text-sm">
+        <table className="table-fixed w-full bg-white border border-gray-300 text-sm">
           <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="px-4 py-2 border-b">Жалующийся</th>
-              <th className="px-4 py-2 border-b">На кого</th>
-              <th className="px-4 py-2 border-b w-48">Текст жалобы</th>
-              <th className="px-4 py-2 border-b w-64">Комментарий</th>
-              <th className="px-4 py-2 border-b">Действия</th>
+            <tr className="bg-gray-100 select-none">
+              {['Жалующийся', 'На кого', 'Текст жалобы', 'Комментарий', 'Действия'].map((title, index) => (
+                <th
+                  key={index}
+                  className="px-4 py-2 border border-gray-300 relative group"
+                  style={{ width: columnWidths[index] }}
+                >
+                  {title}
+                  <div
+                    onMouseDown={(e) => handleMouseDown(e, index)}
+                    className="absolute right-0 top-0 h-full w-1 cursor-col-resize group-hover:bg-blue-500"
+                  />
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {complaints.map((c) => (
-              <tr key={c.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-2 whitespace-pre-wrap">
+              <tr key={c.id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 border border-gray-300 whitespace-pre-wrap">
                   <div>{c.complainant.nickname}</div>
                   <div className="text-xs text-gray-500">{c.complainant.email}</div>
                 </td>
-                <td className="px-4 py-2 whitespace-pre-wrap">
+                <td className="px-4 py-2 border border-gray-300 whitespace-pre-wrap">
                   <div>{c.targetUser.nickname}</div>
                   <div className="text-xs text-gray-500">{c.targetUser.email}</div>
                 </td>
-                <td className="px-4 py-2 whitespace-pre-wrap break-words max-w-xs">{c.complaintText}</td>
-                <td className="px-4 py-2 whitespace-pre-wrap break-words max-w-xs">{c.comment?.text || '—'}</td>
-                <td className="px-4 py-2">
-                  <div className="flex flex-col gap-1">
+                <td className="px-4 py-2 border border-gray-300 whitespace-pre-wrap break-words">{c.complaintText}</td>
+                <td className="px-4 py-2 border border-gray-300 whitespace-pre-wrap break-words">{c.comment?.text || '—'}</td>
+                <td className="px-4 py-2 border border-gray-300">
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => markResolved(c.id)}
+                    className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 text-sm"
+                  >
+                    ✅ Рассмотрена
+                  </button>
+                  <select
+                    onChange={(e) => banUser(c.id, e.target.value)}
+                    defaultValue=""
+                    className="px-2 py-1 border rounded text-sm"
+                  >
+                    <option value="" disabled>🔒 Бан</option>
+                    <option value="1m">На месяц</option>
+                    <option value="6m">На 6 месяцев</option>
+                    <option value="1y">На год</option>
+                    <option value="perm">Навсегда</option>
+                  </select>
+                  <button
+                    onClick={() => { setSelectedComplaint(c); setShowModal(true); }}
+                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 text-sm"
+                  >
+                    ⚠️ Предупреждение
+                  </button>
+                  {c.comment && (
                     <button
-                      onClick={() => markResolved(c.id)}
-                      className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 text-sm"
+                      onClick={() => c.comment?.id && deleteComment(c.comment.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-sm"
                     >
-                      ✅ Рассмотрена
+                      🗑 Удалить комментарий
                     </button>
-                    <select
-                      onChange={(e) => banUser(c.id, e.target.value)}
-                      defaultValue=""
-                      className="px-2 py-1 border rounded text-sm"
-                    >
-                      <option value="" disabled>🔒 Бан</option>
-                      <option value="1m">На месяц</option>
-                      <option value="6m">На 6 месяцев</option>
-                      <option value="1y">На год</option>
-                      <option value="perm">Навсегда</option>
-                    </select>
-                    <button
-                      onClick={() => { setSelectedComplaint(c); setShowModal(true); }}
-                      className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 text-sm"
-                    >
-                      ⚠️ Предупреждение
-                    </button>
-                    {c.comment && (
-                      <button
-                        onClick={() => c.comment?.id && deleteComment(c.comment.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-sm"
-                      >
-                        🗑 Удалить комментарий
-                      </button>
-                    )}
-                  </div>
+                  )}
+                </div>
                 </td>
               </tr>
             ))}

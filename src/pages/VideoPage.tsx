@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { JapaneseVideoPlayer } from '../japanese_video_player';
 import CommentsSection from '../components/comments/CommentsSection';
 import { Subtitle, DictionaryEntry } from '../types';
-import DictionaryModal from '../DictionaryModal';
+import DictionaryModal from '../components/DictionaryModal';
 import StarRating from '../components/StarRating';
 import { getCurrentUser } from '../auth';
 
