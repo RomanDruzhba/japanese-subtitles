@@ -16,17 +16,17 @@ function sm2(card, quality) {
     repetition = 0;
     efactor = 2.5; // можно сбрасывать или оставить
     switch (quality) {
-      case 0: // снова
-        nextAppearance = new Date(now.getTime() + 30 * 1000); // 30 секунд
-        break;
-      case 2: // трудно
-        nextAppearance = new Date(now.getTime() + 10 * 60 * 1000); // 10 минут
-        break;
-      case 3: // сложно
-        nextAppearance = new Date(now.getTime() + 60 * 60 * 1000); // 1 час
-        break;
-      default:
-        nextAppearance = new Date(now.getTime() + 60 * 60 * 1000); // fallback: 1 час
+    case 0: // снова
+      nextAppearance = new Date(now.getTime() + 30 * 1000); // 30 секунд
+      break;
+    case 2: // трудно
+      nextAppearance = new Date(now.getTime() + 10 * 60 * 1000); // 10 минут
+      break;
+    case 3: // сложно
+      nextAppearance = new Date(now.getTime() + 60 * 60 * 1000); // 1 час
+      break;
+    default:
+      nextAppearance = new Date(now.getTime() + 60 * 60 * 1000); // fallback: 1 час
     }
     interval = 0;
   } else {

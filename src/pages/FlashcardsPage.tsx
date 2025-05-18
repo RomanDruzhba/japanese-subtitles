@@ -83,16 +83,16 @@ const FlashcardsPage: React.FC = () => {
 
     if (card.repetition === 0) {
       switch (quality) {
-        case 0: // 'снова'
-          return new Date(now.getTime() + 30 * 1000); // 30 секунд
-        case 2: // 'трудно'
-          return new Date(now.getTime() + 10 * 60 * 1000); // 10 минут
-        case 3: // 'сложно'
-          return new Date(now.getTime() + 60 * 60 * 1000); // 1 час
-        case 5: // 'легко'
-          return new Date(now.getTime() + 24 * 60 * 60 * 1000); // 1 день
-        default:
-          return new Date(now.getTime() + 60 * 60 * 1000); // по умолчанию 1 час
+      case 0: // 'снова'
+        return new Date(now.getTime() + 30 * 1000); // 30 секунд
+      case 2: // 'трудно'
+        return new Date(now.getTime() + 10 * 60 * 1000); // 10 минут
+      case 3: // 'сложно'
+        return new Date(now.getTime() + 60 * 60 * 1000); // 1 час
+      case 5: // 'легко'
+        return new Date(now.getTime() + 24 * 60 * 60 * 1000); // 1 день
+      default:
+        return new Date(now.getTime() + 60 * 60 * 1000); // по умолчанию 1 час
       }
     }
 

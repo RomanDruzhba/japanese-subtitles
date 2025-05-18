@@ -123,39 +123,39 @@ const AdminComplaintsPage: React.FC = () => {
                 <td className="px-4 py-2 border border-gray-300 whitespace-pre-wrap break-words">{c.complaintText}</td>
                 <td className="px-4 py-2 border border-gray-300 whitespace-pre-wrap break-words">{c.comment?.text || '—'}</td>
                 <td className="px-4 py-2 border border-gray-300">
-                <div className="flex flex-col gap-1">
-                  <button
-                    onClick={() => markResolved(c.id)}
-                    className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 text-sm"
-                  >
-                    ✅ Рассмотрена
-                  </button>
-                  <select
-                    onChange={(e) => banUser(c.id, e.target.value)}
-                    defaultValue=""
-                    className="px-2 py-1 border rounded text-sm"
-                  >
-                    <option value="" disabled>🔒 Бан</option>
-                    <option value="1m">На месяц</option>
-                    <option value="6m">На 6 месяцев</option>
-                    <option value="1y">На год</option>
-                    <option value="perm">Навсегда</option>
-                  </select>
-                  <button
-                    onClick={() => { setSelectedComplaint(c); setShowModal(true); }}
-                    className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 text-sm"
-                  >
-                    ⚠️ Предупреждение
-                  </button>
-                  {c.comment && (
+                  <div className="flex flex-col gap-1">
                     <button
-                      onClick={() => c.comment?.id && deleteComment(c.comment.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-sm"
+                      onClick={() => markResolved(c.id)}
+                      className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 text-sm"
                     >
-                      🗑 Удалить комментарий
+                    ✅ Рассмотрена
                     </button>
-                  )}
-                </div>
+                    <select
+                      onChange={(e) => banUser(c.id, e.target.value)}
+                      defaultValue=""
+                      className="px-2 py-1 border rounded text-sm"
+                    >
+                      <option value="" disabled>🔒 Бан</option>
+                      <option value="1m">На месяц</option>
+                      <option value="6m">На 6 месяцев</option>
+                      <option value="1y">На год</option>
+                      <option value="perm">Навсегда</option>
+                    </select>
+                    <button
+                      onClick={() => { setSelectedComplaint(c); setShowModal(true); }}
+                      className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 text-sm"
+                    >
+                    ⚠️ Предупреждение
+                    </button>
+                    {c.comment && (
+                      <button
+                        onClick={() => c.comment?.id && deleteComment(c.comment.id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-sm"
+                      >
+                      🗑 Удалить комментарий
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

@@ -98,8 +98,8 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
                       {addedIds.has(entryId)
                         ? 'Добавлено!'
                         : addingId === entryId
-                        ? 'Добавление...'
-                        : 'Добавить'}
+                          ? 'Добавление...'
+                          : 'Добавить'}
                     </button>
                   </div>
                 </div>
