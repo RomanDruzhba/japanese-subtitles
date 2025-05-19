@@ -7,10 +7,11 @@ import FlashcardsPage from '../pages/FlashcardsPage';
 import Layout from '../components/layout/Layout';
 import LoginPage from '../pages/LoginPage';
 import AdminPage from '../pages/AdminPage/AdminPage';
-import ProfilePage from '../pages/ProfilePage';
+import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import AdminDatabasePage from '../pages/AdminDatabasePage';
 import AdminRoute from './AdminRoute';
 import AdminComplaintsPage from '../pages/AdminComplaintsPage';
+import {ResetPasswordPage} from '../pages/ResetPasswordPage';
 
 
 const AppRouter: React.FC = () => {
@@ -27,6 +28,7 @@ const AppRouter: React.FC = () => {
           <Route path="/database" element={<AdminRoute><AdminDatabasePage /></AdminRoute>} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/complaint" element={<AdminComplaintsPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         </Routes>
       </Layout>
     </Router>

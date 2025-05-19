@@ -41,6 +41,14 @@ User.init({
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  resetToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetTokenExpires: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 }, { sequelize: db, modelName: 'user' });
 
 
