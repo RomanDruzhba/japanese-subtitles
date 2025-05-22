@@ -207,6 +207,7 @@ const HomePage: React.FC = () => {
                   <video
                     src={`${API_BASE_URL}${ep.videoUrl}#t=15`}
                     className="w-full h-48 object-cover rounded-md mb-2"
+                    onError={(e) => console.error('Ошибка загрузки видео:', e)}
                   />
                   {ep.rating !== undefined && (
                     <p className="text-sm text-yellow-600 font-medium mb-1">★ {ep.rating.toFixed(1)}</p>

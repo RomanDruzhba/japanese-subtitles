@@ -9,7 +9,7 @@ import { getCurrentUser } from '../auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-const DICTIONARY_FILES_COUNT = 13; // Количество файлов словарей
+const DICTIONARY_FILES_COUNT = 24; // Количество файлов словарей
 
 const VideoPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);

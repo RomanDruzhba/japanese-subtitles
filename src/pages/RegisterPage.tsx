@@ -66,6 +66,7 @@ export const RegisterPage: React.FC = () => {
         <div>
           <label className="block text-sm font-medium mb-1">Email</label>
           <input
+            maxLength={50}
             type="email"
             placeholder="Email"
             value={email}
@@ -78,6 +79,7 @@ export const RegisterPage: React.FC = () => {
         <div>
           <label className="block text-sm font-medium mb-1">Пароль</label>
           <input
+            maxLength={50}
             type={showPassword ? 'text' : 'password'}
             placeholder="Пароль"
             value={password}

@@ -231,7 +231,8 @@ export class JpLine extends LitElement {
   private parseTokens(line: string): string[] {
     if (this.lang === 'jpn' || this.lang === 'jp') {
       // Для японского — по символам
-      return Array.from(line.trim());
+      // return Array.from(line.trim());
+      return line.trim().split(/\s+/);
     } else {
       // Для остальных языков — по словам
       return line.trim().split(/\s+/);

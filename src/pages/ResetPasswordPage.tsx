@@ -37,6 +37,7 @@ export const ResetPasswordPage: React.FC = () => {
       <h2 className="text-2xl mb-4">Сброс пароля</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
+          maxLength={50}
           type="password"
           placeholder="Новый пароль"
           value={newPassword}

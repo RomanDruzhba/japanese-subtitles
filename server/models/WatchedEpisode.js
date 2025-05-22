@@ -1,22 +1,36 @@
-// server/models/WatchedEpisode.js
-
 import { DataTypes, Model } from 'sequelize';
 import { db } from '../db.js';
-import { User } from './User.js'; // подключаем модель пользователя
+import { User } from './User.js';
+import { Anime } from './Anime.js';
+import { Episode } from './Episode.js';
 
 export class WatchedEpisode extends Model {}
 
 WatchedEpisode.init({
-  animeTitle: {
-    type: DataTypes.STRING,
+  userId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
-  episodeTitle: {
-    type: DataTypes.STRING,
+  animeId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+    references: { model: 'animes', key: 'id' },
   },
-}, { sequelize: db, modelName: 'watchedepisode' });
+  episodeId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: { model: 'episodes', key: 'id' },
+  },
+}, {
+  sequelize: db,
+  modelName: 'watchedepisode',
+  indexes: [{ unique: true, fields: ['userId', 'episodeId'] }]
+});
 
-// Связь: просмотренный эпизод принадлежит пользователю
 WatchedEpisode.belongsTo(User, { foreignKey: 'userId' });
+WatchedEpisode.belongsTo(Anime, { foreignKey: 'animeId' });
+WatchedEpisode.belongsTo(Episode, { foreignKey: 'episodeId' });
+
 User.hasMany(WatchedEpisode, { foreignKey: 'userId' });
+Anime.hasMany(WatchedEpisode, { foreignKey: 'animeId' });
+Episode.hasMany(WatchedEpisode, { foreignKey: 'episodeId' });

@@ -16,7 +16,7 @@ const styles = css`
     font-weight: 500;
     color: white;
     text-shadow: 0 0 4px black;
-    z-index: 9;
+    z-index: 7;
   }
 `;
 

@@ -35,7 +35,7 @@ const ProfileComments = ({ comments, videoMap }: any) => {
                   to={`/video?vid=${encodeURIComponent(episodeComments[0].videoId)}`}
                   className="inline-block text-blue-600 underline mt-2 mb-1"
                 >
-                            Перейти к видео
+                  Перейти к видео
                 </Link>
                 {episodeComments.map((comment: any) => (
                   <div key={comment.id} className="border-b py-2 text-gray-700">{comment.text}</div>

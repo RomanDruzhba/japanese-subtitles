@@ -22,7 +22,7 @@ User.init({
     allowNull: false,
   },
   avatar: {
-    type: DataTypes.BLOB('long'), // для хранения больших изображений
+    type: DataTypes.BLOB('long'),
     allowNull: true,
   },
   avatarMimeType: {

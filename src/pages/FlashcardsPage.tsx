@@ -191,6 +191,7 @@ const FlashcardsPage: React.FC = () => {
                   <td className="border px-4 py-2">
                     {editedCardId === c.id ? (
                       <input
+                        maxLength={300}
                         value={editedFields.word ?? ''}
                         onChange={(e) =>
                           setEditedFields((prev) => ({ ...prev, word: e.target.value }))
@@ -204,6 +205,7 @@ const FlashcardsPage: React.FC = () => {
                   <td className="border px-4 py-2">
                     {editedCardId === c.id ? (
                       <input
+                        maxLength={300}
                         value={editedFields.translation ?? ''}
                         onChange={(e) =>
                           setEditedFields((prev) => ({ ...prev, translation: e.target.value }))

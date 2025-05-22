@@ -64,6 +64,7 @@ export const LoginPage: React.FC = () => {
         <div>
           <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
           <input
+            maxLength={50}
             id="email"
             type="email"
             placeholder="Email"
@@ -77,6 +78,7 @@ export const LoginPage: React.FC = () => {
         <div>
           <label htmlFor="password" className="block text-sm font-medium mb-1">Пароль</label>
           <input
+            maxLength={50}
             id="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="Пароль"

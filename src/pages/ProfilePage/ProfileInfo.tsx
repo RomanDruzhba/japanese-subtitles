@@ -50,6 +50,7 @@ const ProfileInfo = ({ user, setUser, message, setMessage }: any) => {
         className="w-28 h-28 rounded-full mx-auto object-cover"
       />
       <input
+        maxLength={20}
         type="text"
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}

@@ -49,7 +49,7 @@ const ProfilePage: React.FC = () => {
       <h2 className="text-3xl font-bold text-center">Профиль пользователя</h2>
       <ProfileInfo user={user} setUser={setUser} message={message} setMessage={setMessage} />
       <ProfileComments comments={comments} videoMap={videoMap} />
-      <ProfileWatchedEpisodes episodes={watchedEpisodes} setEpisodes={setWatchedEpisodes} />
+      <ProfileWatchedEpisodes userId={user.id} />
       <LogoutButton />
     </div>
   );
