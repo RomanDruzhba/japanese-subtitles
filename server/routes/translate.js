@@ -2,10 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import OpenAI from 'openai';
 
-const key = import.meta.env.OPENROUTER_API_KEY;
-
 const openai = new OpenAI({
-  apiKey: key,
+  apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: 'https://openrouter.ai/api/v1', // важно!
   defaultHeaders: {
     'HTTP-Referer': 'http://localhost:3000',
