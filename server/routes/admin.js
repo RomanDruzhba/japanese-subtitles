@@ -57,4 +57,48 @@ router.delete('/delete-file', (req, res) => {
   }
 });
 
+router.post('/delete-episode-completely', async (req, res) => {
+  const { episodeTitle, animeTitle } = req.body;
+
+  if (!episodeTitle || !animeTitle) {
+    return res.status(400).json({ error: 'Не указаны название эпизода или аниме' });
+  }
+
+  try {
+    const episode = await Episode.findOne({
+      where: { title: episodeTitle },
+      include: {
+        model: Anime,
+        where: { title: animeTitle }
+      }
+    });
+
+    if (!episode) {
+      return res.status(404).json({ error: 'Эпизод не найден' });
+    }
+
+    // Удаление видеофайла
+    if (episode.videoUrl) {
+      const videoPath = path.join(BASE_DIR, episode.videoUrl.replace(/^\/?mock\/?/, ''));
+      if (fs.existsSync(videoPath)) {
+        fs.unlinkSync(videoPath);
+      }
+    }
+
+    // Удаление папки с сабами
+    const subsFolder = path.join(BASE_DIR, animeTitle, episodeTitle, 'subtitles');
+    if (fs.existsSync(subsFolder)) {
+      fs.rmSync(subsFolder, { recursive: true, force: true });
+    }
+
+    // Удаление записи из базы
+    await episode.destroy();
+
+    res.json({ message: 'Эпизод полностью удалён' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка удаления эпизода', details: err.message });
+  }
+});
+
 export default router;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { AdminVideo } from '../types';
+import { AdminVideo } from '../types/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 

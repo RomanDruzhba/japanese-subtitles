@@ -21,7 +21,7 @@
   "include": [
     "src/**/*",
     "tests/**/*",
-    "server/**/*", 
-    "tailwind.config.js"  ],
+    "server/**/*", "types/**/*", 
+    "tailwind.config.js", "public/kuromoji.ts", "public/kuromoji.ts", "public/kuromoji.ts", "kuromoji.ts"  ],
   "exclude": ["node_modules"]
 }

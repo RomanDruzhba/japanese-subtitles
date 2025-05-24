@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { AdminVideo } from '../types';
+import { AdminVideo } from '../types/types';
 import axios from 'axios';
 
 interface UploadedListProps {
@@ -58,6 +58,20 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
         return acc;
       }, {});
   }, [videos, filter]);
+
+
+  const handleDeleteEpisodeCompletely = async (video: AdminVideo) => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/admin/delete-episode-completely`, {
+        episodeTitle: video.episodeTitle,
+        animeTitle: video.animeTitle
+      });
+      alert('Эпизод полностью удалён');
+      onDelete(video); // Удаление из UI
+    } catch (err: any) {
+      alert(`Ошибка удаления эпизода: ${err?.response?.data?.error || err.message}`);
+    }
+  };
 
   return (
     <div className="p-4">
@@ -135,7 +149,7 @@ const UploadedList: React.FC<UploadedListProps> = ({ videos, onDelete }) => {
                           ))}
                         </ul>
                         <button
-                          onClick={() => onDelete(video)}
+                          onClick={() => handleDeleteEpisodeCompletely(video)}
                           className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                         >
                           Удалить эпизод полностью
