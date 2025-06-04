@@ -29,6 +29,7 @@ const VideoPage: React.FC = () => {
   const userId = currentUser?.id;
   const navigate = useNavigate();
 
+  const [truncationMessage, setTruncationMessage] = useState<string>('');
   const dictionaryRef = useRef<DictionaryEntry[]>([]);
 
   useEffect(() => {
@@ -95,33 +96,70 @@ const VideoPage: React.FC = () => {
 
         player.handleTokenClick = (token: string) => {
           const currentDict = dictionaryRef.current;
-          // console.log('Обработчик токена срабатывает по:', token);
-          // console.log('dictionary сейчас:', currentDict);
 
           if (!currentDict.length) {
-            // console.warn('Словарь ещё не загружен');
             return;
           }
 
-          const results = currentDict
-            .map(entry => {
-              const [term, reading] = entry;
-              let score = 0;
-              if (term === token) score = 100;
-              else if (reading === token) score = 80;
-              else if (/[\u3400-\u9FBF]/.test(token) && term.includes(token)) score = 60;
-              else if (reading.includes(token)) score = 40;
-              return { entry, score };
-            })
-            .filter(item => item.score > 0)
-            .sort((a, b) => b.score - a.score)
-            .map(item => item.entry);
+          // Функция для поиска в словаре
+          const searchInDictionary = (searchToken: string) => {
+            return currentDict
+              .map(entry => {
+                const [term, reading] = entry;
+                let score = 0;
+                if (term === searchToken) score = 100;
+                else if (reading === searchToken) score = 80;
+                else if (/[\u3400-\u9FBF]/.test(searchToken) && term.includes(searchToken)) score = 60;
+                else if (reading.includes(searchToken)) score = 40;
+                return { entry, score };
+              })
+              .filter(item => item.score > 0)
+              .sort((a, b) => b.score - a.score)
+              .map(item => item.entry);
+          };
 
+          // Сохраняем оригинальный токен
+          const originalToken = token;
+          let results: any[] = [];
+          let currentToken = token;
+          let foundWithTruncation = false;
+          let truncatedToken = '';
+
+          // Последовательно усекаем токен, пока не найдем совпадения или не останется 1 символ
+          while (currentToken.length > 0) {
+            results = searchInDictionary(currentToken);
+
+            if (results.length > 0) {
+              // Если нашли совпадения после усечения
+              if (currentToken !== originalToken) {
+                foundWithTruncation = true;
+                truncatedToken = currentToken;
+              }
+              break;
+            }
+
+            // Прекращаем, если остался 1 символ
+            if (currentToken.length === 1) {
+              break;
+            }
+
+            // Усекаем последний символ
+            currentToken = currentToken.slice(0, -1);
+          }
+
+          // Обработка результатов
           if (results.length) {
-            setSelectedWord(token);
-            setEntries(results.slice(0, 50)); // Ограничиваем количество результатов
+            setSelectedWord(originalToken);
+            setEntries(results.slice(0, 50));
+
+            // Устанавливаем сообщение об усечении, если оно было
+            if (foundWithTruncation) {
+              setTruncationMessage(`Для "${originalToken}" не найдено совпадений. Показаны результаты для "${truncatedToken}"`);
+            } else {
+              setTruncationMessage(''); // Сбрасываем сообщение
+            }
           } else {
-            alert(`Слово ${token} не найдено в словаре`);
+            alert(`Слово "${originalToken}" не найдено в словаре`);
           }
         };
 
@@ -234,7 +272,11 @@ const VideoPage: React.FC = () => {
         <DictionaryModal
           word={selectedWord}
           entries={entries}
-          onClose={() => setSelectedWord(null)}
+          truncationMessage={truncationMessage} // Передаем сообщение в модалку
+          onClose={() => {
+            setSelectedWord(null);
+            setTruncationMessage(''); // Сбрасываем сообщение при закрытии
+          }}
         />
       )}
     </div>
