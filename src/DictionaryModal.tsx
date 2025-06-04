@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { DictionaryEntry } from '../types';
-import { getCurrentUser } from '../auth';
+import React, { useEffect } from 'react';
+import { DictionaryEntry } from './types';
 
 interface DictionaryModalProps {
   word: string;
   entries: DictionaryEntry[];
   onClose: () => void;
-  truncationMessage?: string;
+  truncationMessage?: string; // Добавляем проп для сообщения об усечении
 }
 
-const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClose, truncationMessage }) => {
-  const [addingId, setAddingId] = useState<string | null>(null);
-  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
-
+const DictionaryModal: React.FC<DictionaryModalProps> = ({ 
+  word, 
+  entries, 
+  onClose,
+  truncationMessage // Принимаем сообщение об усечении
+}) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -21,107 +22,131 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const handleAddCard = async (entryId: string, word: string, translation: string) => {
-    const user = getCurrentUser();
-    if (!user) return;
-
-    setAddingId(entryId);
-    try {
-      await fetch('/api/cards', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ word, translation, userId: user.id }),
-      });
-      setAddedIds(prev => new Set(prev).add(entryId));
-    } catch (err) {
-      console.error('Ошибка при добавлении карточки:', err);
-    } finally {
-      setAddingId(null);
-    }
-  };
-
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+      }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg max-w-2xl w-11/12 max-h-[80vh] overflow-y-auto shadow-xl p-6"
+        style={{
+          background: '#fff',
+          padding: '20px',
+          borderRadius: '8px',
+          maxWidth: '600px',
+          width: '90%',
+          maxHeight: '80%',
+          overflowY: 'auto',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-semibold border-b pb-2 mb-4">{word}</h2>
-        {/* блок с сообщением об усечении */}
+        <h2 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+          {word}
+        </h2>
+        
+        {/* Блок с сообщением об усечении */}
         {truncationMessage && (
-          <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
-            <p>{truncationMessage}</p>
+          <div style={{
+            background: '#fff8e1',
+            borderLeft: '4px solid #ffc107',
+            padding: '10px 15px',
+            marginBottom: '15px',
+            borderRadius: '0 4px 4px 0'
+          }}>
+            <p style={{ margin: 0, color: '#856404' }}>
+              {truncationMessage}
+            </p>
           </div>
         )}
+        
         {entries.length > 0 ? (
-          <div className="space-y-6">
-            {entries.map((entry, idx) => {
-              const entryId = `${entry[0]}-${idx}`;
-              const wordKanji = entry[0];
-              const reading = entry[1];
-              const senses = entry[5];
-              const plainTranslation = senses[0]?.replace(/<[^>]*>/g, '').trim();
-
-              return (
-                <div
-                  key={entryId}
-                  className={`p-4 rounded border-l-4 ${idx === 0
-                      ? 'bg-green-50 border-green-500'
-                      : 'bg-blue-50 border-blue-400'
-                    }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {wordKanji}
-                        <span className="ml-2 text-sm text-gray-500">{reading}</span>
-                      </h3>
-                      <ul className="list-disc list-inside text-sm mt-2 space-y-1">
-                        {senses.map((sense, i) => (
-                          <li
-                            key={i}
-                            dangerouslySetInnerHTML={{ __html: sense }}
-                            className="text-gray-700"
-                          />
-                        ))}
-                      </ul>
-                    </div>
-                    <button
-                      className={`ml-4 px-4 py-1 text-sm rounded shadow ${addedIds.has(entryId)
-                          ? 'bg-green-500 text-white cursor-default'
-                          : 'bg-blue-500 hover:bg-blue-600 text-white'
-                        } disabled:opacity-50`}
-                      disabled={addingId === entryId || addedIds.has(entryId)}
-                      onClick={() =>
-                        handleAddCard(entryId, wordKanji, plainTranslation)
-                      }
-                    >
-                      {addedIds.has(entryId)
-                        ? 'Добавлено!'
-                        : addingId === entryId
-                          ? 'Добавление...'
-                          : 'Добавить'}
-                    </button>
+          <div>
+            {/* Лучшее совпадение - выделяем особо */}
+            <div style={{
+              background: '#f8f8f8',
+              padding: '15px',
+              borderRadius: '5px',
+              marginBottom: '20px',
+              borderLeft: '4px solid #4CAF50'
+            }}>
+              <h3 style={{ marginTop: 0, color: '#2E7D32' }}>
+                {entries[0][0]} {/* Кандзи */}
+                <span style={{ fontSize: '0.9em', color: '#666', marginLeft: '10px' }}>
+                  {entries[0][1]} {/* Чтение */}
+                </span>
+              </h3>
+              <div>
+                {entries[0][5].map((sense: string, i: number) => (
+                  <p key={i} 
+                    style={{ margin: '8px 0' }}
+                    dangerouslySetInnerHTML={{ __html: sense }} 
+                  />
+                ))}
+              </div>
+            </div>
+  
+            {/* Остальные варианты */}
+            {entries.length > 1 && (
+              <div style={{ marginTop: '20px' }}>
+                <h4 style={{ color: '#666', borderBottom: '1px solid #eee' }}>
+                  Другие варианты:
+                </h4>
+                {entries.slice(1).map((entry, idx) => (
+                  <div 
+                    key={idx} 
+                    style={{
+                      marginBottom: '1rem',
+                      padding: '10px',
+                      borderLeft: '3px solid #2196F3',
+                      background: '#f5f5f5'
+                    }}
+                  >
+                    <h4 style={{ margin: '0 0 5px 0' }}>
+                      {entry[0]} {/* Кандзи */}
+                      <span style={{ fontSize: '0.9em', color: '#666', marginLeft: '8px' }}>
+                        {entry[1]} {/* Чтение */}
+                      </span>
+                    </h4>
+                    <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                      {entry[5].map((sense: string, i: number) => (
+                        <li 
+                          key={i} 
+                          style={{ marginBottom: '5px' }}
+                          dangerouslySetInnerHTML={{ __html: sense }} 
+                        />
+                      ))}
+                    </ul>
                   </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            )}
           </div>
         ) : (
-          <p className="text-gray-500 italic">Нет записей в словаре.</p>
+          <p style={{ color: '#666', fontStyle: 'italic' }}>Нет записей в словаре.</p>
         )}
-
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
-          >
-            Закрыть
-          </button>
-        </div>
+        
+        <button 
+          onClick={onClose}
+          style={{
+            marginTop: '20px',
+            padding: '8px 16px',
+            background: '#f44336',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Закрыть
+        </button>
       </div>
     </div>
   );
