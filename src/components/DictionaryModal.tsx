@@ -6,9 +6,10 @@ interface DictionaryModalProps {
   word: string;
   entries: DictionaryEntry[];
   onClose: () => void;
+  truncationMessage?: string;
 }
 
-const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClose }) => {
+const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClose, truncationMessage }) => {
   const [addingId, setAddingId] = useState<string | null>(null);
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
 
@@ -49,7 +50,12 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-semibold border-b pb-2 mb-4">{word}</h2>
-
+        {/* блок с сообщением об усечении */}
+        {truncationMessage && (
+          <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+            <p>{truncationMessage}</p>
+          </div>
+        )}
         {entries.length > 0 ? (
           <div className="space-y-6">
             {entries.map((entry, idx) => {
@@ -62,11 +68,10 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
               return (
                 <div
                   key={entryId}
-                  className={`p-4 rounded border-l-4 ${
-                    idx === 0
+                  className={`p-4 rounded border-l-4 ${idx === 0
                       ? 'bg-green-50 border-green-500'
                       : 'bg-blue-50 border-blue-400'
-                  }`}
+                    }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -85,11 +90,10 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
                       </ul>
                     </div>
                     <button
-                      className={`ml-4 px-4 py-1 text-sm rounded shadow ${
-                        addedIds.has(entryId)
+                      className={`ml-4 px-4 py-1 text-sm rounded shadow ${addedIds.has(entryId)
                           ? 'bg-green-500 text-white cursor-default'
                           : 'bg-blue-500 hover:bg-blue-600 text-white'
-                      } disabled:opacity-50`}
+                        } disabled:opacity-50`}
                       disabled={addingId === entryId || addedIds.has(entryId)}
                       onClick={() =>
                         handleAddCard(entryId, wordKanji, plainTranslation)
