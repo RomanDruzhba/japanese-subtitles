@@ -30,6 +30,25 @@ function tokenizeJapanese(text) {
   });
 }
 
+// Разделение массива блоков на чанки фиксированного размера
+function chunkBlocks(blocks, chunkSize) {
+  const chunks = [];
+  for (let i = 0; i < blocks.length; i += chunkSize) {
+    chunks.push(blocks.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
+function parseTranslatedVttBlocks(translatedText) {
+  return translatedText
+    .split('\n\n')
+    .map((block) => {
+      const [time, ...lines] = block.split('\n');
+      return { time, text: lines.join(' ') };
+    })
+    .filter(b => b.time && b.text);
+}
+
 router.post('/transform', upload.single('file'), async (req, res) => {
   try {
     const { operation, sourceLang, targetLang } = req.body;
@@ -39,30 +58,55 @@ router.post('/transform', upload.single('file'), async (req, res) => {
 
     const originalText = buffer.toString('utf-8');
     const blocks = parseVtt(originalText);
-
-    const newBlocks = await Promise.all(
-      blocks.map(async (block) => {
-        if (operation === 'tokenize') {
+    
+    let newBlocks = [];
+    let translatedText = '';
+    
+    if (operation === 'tokenize') {
+      newBlocks = await Promise.all(
+        blocks.map(async (block) => {
           const tokenized = await tokenizeJapanese(block.text);
           return { ...block, text: tokenized };
-        } else if (operation === 'translate') {
-          const translated = await translateText(block.text, sourceLang, targetLang);
-          return { ...block, text: translated };
-        } else {
-          throw new Error('Неизвестная операция');
-        }
-      })
-    );
+        })
+      );
+    } else if (operation === 'translate') {
+      
+      const chunks = chunkBlocks(blocks, 20);
+      for (const chunk of chunks) {
+        const inputText = chunk.map(b => `${b.time}\n${b.text}`).join('\n\n');
+        console.log('🔄 Исходный текст:\n', inputText);
 
-    const outputVtt = buildVtt(newBlocks);
+        const chunkTranslated  = await translateText(inputText, sourceLang, targetLang);
+        console.log('✅ Переведено:\n', chunkTranslated);
+
+        translatedText += '\n\n' + chunkTranslated.trim();
+
+        const translatedBlocks = parseTranslatedVttBlocks(translatedText);
+
+        for (let i = 0; i < chunk.length; i++) {
+          newBlocks.push({
+            time: chunk[i].time,
+            text: translatedBlocks[i]?.text ?? '[Перевод отсутствует]',
+          });
+        }
+      }
+    } else {
+      throw new Error('Неизвестная операция');
+    }
 
     res.setHeader('Content-Disposition', 'attachment; filename="result.vtt"');
     res.setHeader('Content-Type', 'text/vtt');
-    res.send(outputVtt);
+    
+    if (operation === 'tokenize') {
+      res.send(buildVtt(newBlocks));
+    } else {
+      res.send('WEBVTT\n\n' + translatedText.trim());
+    }
   } catch (err) {
-    console.error(err);
+    console.error('❌ Ошибка при обработке:', err);
     res.status(500).send('Ошибка при обработке субтитров');
   }
 });
 
 export default router;
+

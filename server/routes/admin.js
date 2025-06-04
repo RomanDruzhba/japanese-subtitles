@@ -1,6 +1,8 @@
 import express from 'express';
 import { Anime } from '../models/Anime.js';
 import { Episode } from '../models/Episode.js';
+import { EpisodeRating } from '../models/EpisodeRating.js';
+import { WatchedEpisode } from '../models/WatchedEpisode.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -8,13 +10,19 @@ const router = express.Router();
 
 const BASE_DIR = path.join(process.cwd(), 'public', 'mock');
 
+async function archiveModelByTitle(Model, title) {
+  const item = await Model.findOne({ where: { title } });
+  if (!item) return null;
+  item.archived = true;
+  await item.save();
+  return item;
+}
+
 // Архивировать аниме по названию
 router.post('/archive-anime/:title', async (req, res) => {
   try {
-    const anime = await Anime.findOne({ where: { title: req.params.title } });
-    if (!anime) return res.status(404).json({ error: 'Аниме не найдено' });
-    anime.archived = true;
-    await anime.save();
+    const result = await archiveModelByTitle(Anime, req.params.title);
+    if (!result) return res.status(404).json({ error: 'Аниме не найдено' });
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -24,11 +32,14 @@ router.post('/archive-anime/:title', async (req, res) => {
 
 // Архивировать эпизод
 router.post('/archive-episode/:title', async (req, res) => {
-  const episode = await Episode.findOne({ where: { title: req.params.title } });
-  if (!episode) return res.status(404).json({ error: 'Эпизод не найден' });
-  episode.archived = true;
-  await episode.save();
-  res.json({ success: true });
+  try {
+    const result = await archiveModelByTitle(Episode, req.params.title);
+    if (!result) return res.status(404).json({ error: 'Эпизод не найден' });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка архивирования эпизода' });
+  }
 });
 
 
@@ -39,7 +50,7 @@ router.delete('/delete-file', (req, res) => {
   }
 
   const sanitizedPath = filePath.replace(/^\/?mock\/?/, '');
-  const fullPath = path.join(BASE_DIR, sanitizedPath);
+  const fullPath = path.resolve(BASE_DIR, sanitizedPath);
 
   if (!fullPath.startsWith(BASE_DIR)) {
     return res.status(403).json({ error: 'Доступ запрещён' });
@@ -47,7 +58,7 @@ router.delete('/delete-file', (req, res) => {
 
   if (fs.existsSync(fullPath)) {
     try {
-      fs.unlinkSync(fullPath);
+      fs.promises.unlink(fullPath);
       return res.json({ message: 'Файл удалён' });
     } catch (err) {
       return res.status(500).json({ error: 'Ошибка при удалении', details: err.message });
@@ -65,17 +76,19 @@ router.post('/delete-episode-completely', async (req, res) => {
   }
 
   try {
-    const episode = await Episode.findOne({
-      where: { title: episodeTitle },
-      include: {
-        model: Anime,
-        where: { title: animeTitle }
-      }
-    });
+    const episode = await Episode.findOne({ where: { title: episodeTitle } });
+    if (!episode) return res.status(404).json({ error: 'Эпизод не найден' });
 
-    if (!episode) {
-      return res.status(404).json({ error: 'Эпизод не найден' });
+    const anime = await Anime.findByPk(episode.animeId);
+    if (!anime || anime.title !== animeTitle) {
+      return res.status(404).json({ error: 'Несоответствие аниме и эпизода' });
     }
+
+    // Удаление всех оценок этого эпизода
+    await EpisodeRating.destroy({ where: { episodeId: episode.id } });
+
+    // Удаление всех записей о просмотре
+    await WatchedEpisode.destroy({ where: { episodeId: episode.id } });
 
     // Удаление видеофайла
     if (episode.videoUrl) {
@@ -88,7 +101,7 @@ router.post('/delete-episode-completely', async (req, res) => {
     // Удаление папки с сабами
     const subsFolder = path.join(BASE_DIR, animeTitle, episodeTitle, 'subtitles');
     if (fs.existsSync(subsFolder)) {
-      fs.rmSync(subsFolder, { recursive: true, force: true });
+      fs.promises.rm(subsFolder, { recursive: true, force: true });
     }
 
     // Удаление записи из базы

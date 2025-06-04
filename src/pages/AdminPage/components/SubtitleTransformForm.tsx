@@ -9,16 +9,29 @@ const SubtitleTransformForm: React.FC = () => {
   const [sourceLang, setSourceLang] = useState('ja');
   const [targetLang, setTargetLang] = useState('ru');
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return alert('Выберите файл');
+    setDownloadUrl(null);
+    setError(null);
+    setStatus(null);
+
+    if (!file) {
+      setError('Выберите файл');
+      return;
+    }
 
     const formData = new FormData();
     formData.append('file', file);
     formData.append('operation', operation);
     formData.append('sourceLang', sourceLang);
     formData.append('targetLang', targetLang);
+
+    setIsLoading(true);
+    setStatus('Загружаю файл и обрабатываю...');
 
     try {
       const response = await axios.post<Blob>(`${API_BASE_URL}/api/subtitles/transform`, formData, {
@@ -28,9 +41,13 @@ const SubtitleTransformForm: React.FC = () => {
       const blob = new Blob([response.data], { type: 'text/vtt' });
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
-    } catch (err) {
+      setStatus('✅ Обработка завершена');
+    } catch (err: any) {
       console.error(err);
-      alert('Ошибка при обработке файла');
+      setError('Ошибка при обработке файла');
+      setStatus('❌ Произошла ошибка');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -62,7 +79,15 @@ const SubtitleTransformForm: React.FC = () => {
         </>
       )}
 
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Обработать</button>
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" disabled={isLoading}>
+        {isLoading ? 'Обработка...' : 'Обработать'}
+      </button>
+
+      {isLoading && <p className="text-gray-600">⏳ Пожалуйста, подождите...</p>}
+
+      {status && <p className="text-sm text-gray-700">{status}</p>}
+
+      {error && <p className="text-red-600 font-semibold">{error}</p>}
 
       {downloadUrl && (
         <div>
@@ -71,7 +96,7 @@ const SubtitleTransformForm: React.FC = () => {
             download={`subtitles_${operation}.vtt`}
             className="text-blue-500 underline"
           >
-            Скачать результат
+            📥 Скачать результат
           </a>
         </div>
       )}

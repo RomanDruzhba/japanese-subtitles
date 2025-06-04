@@ -69,9 +69,9 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
                 <div
                   key={entryId}
                   className={`p-4 rounded border-l-4 ${idx === 0
-                      ? 'bg-green-50 border-green-500'
-                      : 'bg-blue-50 border-blue-400'
-                    }`}
+                    ? 'bg-green-50 border-green-500'
+                    : 'bg-blue-50 border-blue-400'
+                  }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -91,9 +91,9 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
                     </div>
                     <button
                       className={`ml-4 px-4 py-1 text-sm rounded shadow ${addedIds.has(entryId)
-                          ? 'bg-green-500 text-white cursor-default'
-                          : 'bg-blue-500 hover:bg-blue-600 text-white'
-                        } disabled:opacity-50`}
+                        ? 'bg-green-500 text-white cursor-default'
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                      } disabled:opacity-50`}
                       disabled={addingId === entryId || addedIds.has(entryId)}
                       onClick={() =>
                         handleAddCard(entryId, wordKanji, plainTranslation)

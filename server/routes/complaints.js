@@ -3,9 +3,20 @@ import express from 'express';
 import { Complaint } from '../models/Complaint.js';
 import { User } from '../models/User.js';
 import { Comment } from '../models/Comment.js';
-import nodemailer from 'nodemailer';
+import { transporter } from './mailer.js';
 
 const router = express.Router();
+
+async function loadComplaint(req, res, next) {
+  const complaint = await Complaint.findByPk(req.params.id, {
+    include: [{ model: User, as: 'targetUser' }]
+  });
+
+  if (!complaint) return res.status(404).json({ error: 'Complaint not found' });
+
+  req.complaint = complaint;
+  next();
+}
 
 router.get('/', async (req, res) => {
   const complaints = await Complaint.findAll({
@@ -13,7 +24,7 @@ router.get('/', async (req, res) => {
     include: [
       { model: User, as: 'complainant', attributes: ['id', 'nickname', 'email'] },
       { model: User, as: 'targetUser', attributes: ['id', 'nickname', 'email'] },
-      { model: Comment },
+      { model: Comment, attributes: ['id', 'text'] }
     ],
   });
   res.json(complaints);
@@ -52,26 +63,12 @@ router.post('/:id/resolve', async (req, res) => {
   res.json({ success: true });
 });
 
-router.post('/:id/warn', async (req, res) => {
+router.post('/:id/warn', loadComplaint, async (req, res) => {
   const { reason } = req.body;
-  const complaint = await Complaint.findByPk(req.params.id, {
-    include: [{ model: User, as: 'targetUser' }]
-  });
+  const user = req.complaint.targetUser;
 
-  if (!complaint) return res.status(404).json({ error: 'Complaint not found' });
-
-  const user = complaint.targetUser;
   user.warningCount += 1;
   await user.save();
-
-  // Отправка почты
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'myb334455@gmail.com',
-      pass: 'rveo zcrg kfti opls ',
-    },
-  });
 
   await transporter.sendMail({
     from: '"Anime Portal" <your_email@gmail.com>',
@@ -83,13 +80,11 @@ router.post('/:id/warn', async (req, res) => {
   res.json({ success: true });
 });
 
-router.post('/:id/ban', async (req, res) => {
+router.post('/:id/ban', loadComplaint, async (req, res) => {
   const { duration } = req.body; // duration: '1m' | '6m' | '1y' | 'forever'
-  const complaint = await Complaint.findByPk(req.params.id, {
-    include: [{ model: User, as: 'targetUser' }]
-  });
+  const user = req.complaint.targetUser;
 
-  const user = complaint.targetUser;
+  if (!user) return res.status(404).json({ error: 'Target user not found' });
   user.isBanned = true;
 
   const now = new Date();

@@ -1,3 +1,4 @@
+import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 import OpenAI from 'openai';
@@ -12,7 +13,7 @@ const openai = new OpenAI({
 });
 
 export async function translateText(text, sourceLang, targetLang) {
-  const prompt = `Переведи следующий текст с ${sourceLang} на ${targetLang}: ${text}`;
+  const prompt = `Переведи каждую из следующих строк с ${sourceLang} на ${targetLang}. Не добавляй ничего, кроме перевода. Строки разделены символом новой строки:\n${text}`;
   const chat = await openai.chat.completions.create({
     model: 'deepseek/deepseek-chat-v3-0324:free', // или другая модель
     messages: [{ role: 'user', content: prompt }],

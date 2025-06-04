@@ -4,7 +4,7 @@ import { Card } from '../models/Card.js';
 
 const router = express.Router();
 
-// Интервальное повторение — простая логика (можно доработать)
+// Интервальное повторение
 function sm2(card, quality) {
   let { efactor, interval, repetition } = card;
 
@@ -12,9 +12,8 @@ function sm2(card, quality) {
   let nextAppearance;
 
   if (quality < 3) {
-    // Сброс повтора
     repetition = 0;
-    efactor = 2.5; // можно сбрасывать или оставить
+    efactor = 2.5;
     switch (quality) {
     case 0: // снова
       nextAppearance = new Date(now.getTime() + 30 * 1000); // 30 секунд
@@ -80,7 +79,7 @@ router.post('/', async (req, res) => {
       word,
       translation,
       difficulty: '',
-      nextAppearance: new Date(now.getTime()), // первая проверка через 30 секунд
+      nextAppearance: new Date(now.getTime()),
       repetition: 0,
       interval: 0,
       efactor: 2.5

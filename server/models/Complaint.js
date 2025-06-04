@@ -13,6 +13,7 @@ Complaint.init({
   isResolved: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+    index: true
   },
 }, {
   sequelize: db,

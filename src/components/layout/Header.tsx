@@ -6,7 +6,7 @@ const Header: React.FC = () => {
   const { currentUser } = useAuth();
   
   // Базовый стиль для всех ссылок
-  const linkStyle = "h-full flex items-center justify-center px-6 text-white transition-all duration-300 border-gray-300 hover:bg-gray-600";
+  const linkStyle = 'h-full flex items-center justify-center px-6 text-white transition-all duration-300 border-gray-300 hover:bg-gray-600';
   
   return (
     <header className='bg-gray-900 border-b border-gray-700'>
