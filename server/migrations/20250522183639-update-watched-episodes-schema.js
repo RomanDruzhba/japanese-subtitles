@@ -23,20 +23,20 @@ export async function up(queryInterface, Sequelize) {
 
   for (const entry of watched) {
     const [[anime]] = await queryInterface.sequelize.query(
-      `SELECT id FROM animes WHERE title = ? LIMIT 1`, {
+      'SELECT id FROM animes WHERE title = ? LIMIT 1', {
         replacements: [entry.animeTitle],
       }
     );
 
     const [[episode]] = await queryInterface.sequelize.query(
-      `SELECT id FROM episodes WHERE title = ? LIMIT 1`, {
+      'SELECT id FROM episodes WHERE title = ? LIMIT 1', {
         replacements: [entry.episodeTitle],
       }
     );
 
     if (anime && episode) {
       await queryInterface.sequelize.query(
-        `UPDATE watchedepisodes SET "animeId" = ?, "episodeId" = ? WHERE id = ?`, {
+        'UPDATE watchedepisodes SET "animeId" = ?, "episodeId" = ? WHERE id = ?', {
           replacements: [anime.id, episode.id, entry.id],
         }
       );
@@ -80,19 +80,19 @@ export async function down(queryInterface, Sequelize) {
 
   for (const entry of watched) {
     const [[anime]] = await queryInterface.sequelize.query(
-      `SELECT title FROM animes WHERE id = ? LIMIT 1`, {
+      'SELECT title FROM animes WHERE id = ? LIMIT 1', {
         replacements: [entry.animeId],
       }
     );
 
     const [[episode]] = await queryInterface.sequelize.query(
-      `SELECT title FROM episodes WHERE id = ? LIMIT 1`, {
+      'SELECT title FROM episodes WHERE id = ? LIMIT 1', {
         replacements: [entry.episodeId],
       }
     );
 
     await queryInterface.sequelize.query(
-      `UPDATE watchedepisodes SET "animeTitle" = ?, "episodeTitle" = ? WHERE id = ?`, {
+      'UPDATE watchedepisodes SET "animeTitle" = ?, "episodeTitle" = ? WHERE id = ?', {
         replacements: [
           anime?.title || null,
           episode?.title || null,

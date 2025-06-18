@@ -103,6 +103,11 @@ export class JapaneseVideoPlayer extends LitElement {
 
   onFullscreenChange = () => {
     this.isFullscreen = document.fullscreenElement !== null;
+    this.dispatchEvent(new CustomEvent('fullscreen-change', {
+      detail: { isFullscreen: this.isFullscreen },
+      bubbles: true, // чтобы событие всплывало к React или другим родителям
+      composed: true // чтобы проходило через Shadow DOM
+    }));
   };
 
   toggleFullscreen() {
@@ -218,31 +223,47 @@ export class JapaneseVideoPlayer extends LitElement {
           Your browser does not support the video tag.
         </video>
         <div id="controls" class="${this.showControls ? '' : 'hidden'}">
-         
-          <button id="play-pause" @click="${this.togglePlay}">
-            ${this.isPlaying ? '❚❚' : '►'}
-          </button>
-          <button @click=${() => this.seekRelative(-10)}>« 10с</button>
-          <button @click=${() => this.seekRelative(10)}>10с »</button>
-          <input
-            type="range"
-            min="0"
-            max="${this.duration}"
-            step="0.1"
-            .value="${String(this.currentTime)}"
-            @input=${this.seek}
-            style="flex: 1"
-          />
-          <span>${formatTime(this.currentTime)} / ${formatTime(this.duration)}</span>
-          <button @click=${() => this.changeSpeed(-0.25)}>-скор</button>
-          <span>${this.playbackRate.toFixed(2)}x</span>
-          <button @click=${() => this.changeSpeed(0.25)}>+скор</button>
-          <input type="range" min="0" max="1" step="0.01" .value="${String(this.volume)}" @input=${this.changeVolume} />
-          <button id="fullscreen" @click="${this.toggleFullscreen}">
-            ${this.isFullscreen ? '⛶ ↩' : '⛶'}
-          </button>
-          
-        </div>
+  <button id="play-pause" @click="${this.togglePlay}">
+    ${this.isPlaying ? '❚❚' : '►'}
+  </button>
+  <button @click=${() => this.seekRelative(-10)}>« 10с</button>
+  <button @click=${() => this.seekRelative(10)}>10с »</button>
+  <input
+    type="range"
+    min="0"
+    max="${this.duration}"
+    step="0.1"
+    .value="${String(this.currentTime)}"
+    @input=${this.seek}
+    style="flex: 1"
+  />
+  <span>${formatTime(this.currentTime)} / ${formatTime(this.duration)}</span>
+
+  <!-- Обертка для скорости -->
+  <div class="speed-control" style="display:flex; align-items:center; gap:4px;">
+    <button @click=${() => this.changeSpeed(-0.25)}>-скор</button>
+    <span>${this.playbackRate.toFixed(2)}x</span>
+    <button @click=${() => this.changeSpeed(0.25)}>+скор</button>
+  </div>
+
+  <!-- Обертка для громкости -->
+  <div class="volume-control" style="display:flex; align-items:center; gap:4px;">
+    <input
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      .value="${String(this.volume)}"
+      @input=${this.changeVolume}
+      style="width: 80px;"
+    />
+  </div>
+
+  <button id="fullscreen" @click="${this.toggleFullscreen}">
+    ${this.isFullscreen ? '⛶ ↩' : '⛶'}
+  </button>
+</div>
+
         <div id="overlay" class="${this.overlayText ? 'visible' : ''}">${this.overlayText}</div>
 
         
@@ -257,19 +278,19 @@ export class JapaneseVideoPlayer extends LitElement {
     if (changedProperties.has('subtitles') && this.videoElement) {
       const trackList = this.videoElement.textTracks;
       const tracks: TextTrack[] = Array.from(trackList); // безопасно и типизировано
-  
+
       const textTracks: TextTrackExtended[] = tracks.map((track) => {
         const extended = track as TextTrackExtended;
         extended.isActive = 'true';
         return extended;
       });
-  
+
       this.subtitlesElement.textTracks = textTracks;
       this.panelElement.textTracks = textTracks;
     }
   }
 
-  
+
 
   private loadSubtitles() {
     for (const textTrack of Array.from(this.videoElement.textTracks)) {

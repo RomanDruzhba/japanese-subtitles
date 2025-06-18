@@ -8,12 +8,12 @@ const Footer: React.FC = () => {
         <p className="text-gray-400">&copy; {new Date().getFullYear()} Японский с субтитрами.</p>
         <div className="flex gap-4">
           <a
-            href="https://github.com/RomanDruzhba/japanese-subtitles.git"
+            href="https://vk.com/princess_for_mommy"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-indigo-300 transition"
           >
-            GitHub
+            VK
           </a>
         </div>
       </div>

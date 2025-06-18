@@ -5,11 +5,17 @@ import path from 'path';
 import multer from 'multer';
 
 const upload = multer();
-
 const dbPath = path.join(process.cwd(), 'server', 'database.sqlite');
 const db = new Database(dbPath);
 
 const router = express.Router();
+
+// Получение списка таблиц для whitelist
+const allowedTables = db.prepare(
+  'SELECT name FROM sqlite_master WHERE type=\'table\' AND name NOT LIKE \'sqlite_%\';'
+).all().map(t => t.name);
+
+const isValidTable = (table) => /^[a-zA-Z0-9_]+$/.test(table) && allowedTables.includes(table);
 
 // Загрузка списка ролей
 router.get('/roles', (req, res) => {
@@ -19,14 +25,14 @@ router.get('/roles', (req, res) => {
 
 // Получить список всех таблиц
 router.get('/tables', (req, res) => {
-  const tables = db.prepare('SELECT name FROM sqlite_master WHERE type=\'table\' AND name NOT LIKE \'sqlite_%\';').all();
-  res.json(tables.map(t => t.name));
+  res.json(allowedTables);
 });
-
 
 // Получить данные таблицы
 router.get('/table/:tableName', (req, res) => {
   const table = req.params.tableName;
+  if (!isValidTable(table)) return res.status(400).json({ error: 'Invalid table name' });
+
   const pragma = db.prepare(`PRAGMA table_info(${table})`).all();
   const rowsRaw = db.prepare(`SELECT * FROM ${table}`).all();
 
@@ -39,22 +45,14 @@ router.get('/table/:tableName', (req, res) => {
 
   const rows = rowsRaw.map(row => {
     const processedRow = {};
-
     for (const key of visibleColumns) {
       if (blobFields.includes(key)) {
         let buf = row[key];
-
-        // Преобразуем если это псевдо-буфер (как от JSON сериализации)
         if (buf && typeof buf === 'object' && buf.type === 'Buffer' && Array.isArray(buf.data)) {
           buf = Buffer.from(buf.data);
         }
-
-
-        // Проверяем и обрабатываем как изображение
         if (Buffer.isBuffer(buf)) {
-          const mimeTypeKey = Object.keys(row).find(k =>
-            k.toLowerCase() === `${key.toLowerCase()}mimetype`
-          );
+          const mimeTypeKey = Object.keys(row).find(k => k.toLowerCase() === `${key.toLowerCase()}mimetype`);
           const mimeType = mimeTypeKey ? row[mimeTypeKey] : 'image/jpeg';
           processedRow[key] = `data:${mimeType};base64,${buf.toString('base64')}`;
         } else {
@@ -64,7 +62,6 @@ router.get('/table/:tableName', (req, res) => {
         processedRow[key] = row[key];
       }
     }
-    
     return processedRow;
   });
 
@@ -74,8 +71,9 @@ router.get('/table/:tableName', (req, res) => {
 // Добавить строку
 router.post('/table/:tableName', (req, res) => {
   const table = req.params.tableName;
-  const row = req.body;
+  if (!isValidTable(table)) return res.status(400).json({ error: 'Invalid table name' });
 
+  const row = req.body;
   const pragma = db.prepare(`PRAGMA table_info(${table})`).all();
   const blobFields = pragma.filter(col => col.type?.toLowerCase() === 'blob').map(col => col.name);
 
@@ -96,17 +94,20 @@ router.post('/table/:tableName', (req, res) => {
   }
 
   const keys = Object.keys(row);
-  const values = keys.map(k => row[k]);
   const placeholders = keys.map(() => '?').join(', ');
-  db.prepare(`INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders})`).run(values);
+  const values = keys.map(k => row[k]);
+
+  const sql = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders})`;
+  db.prepare(sql).run(values);
   res.sendStatus(200);
 });
 
 // Обновить строку
 router.put('/table/:tableName', (req, res) => {
   const table = req.params.tableName;
-  const { id, ...rest } = req.body;
+  if (!isValidTable(table)) return res.status(400).json({ error: 'Invalid table name' });
 
+  const { id, ...rest } = req.body;
   const pragma = db.prepare(`PRAGMA table_info(${table})`).all();
   const blobFields = pragma.filter(col => col.type?.toLowerCase() === 'blob').map(col => col.name);
 
@@ -126,10 +127,21 @@ router.put('/table/:tableName', (req, res) => {
   });
 
   const assignments = keys.map(k => `${k} = ?`).join(', ');
-  db.prepare(`UPDATE ${table} SET ${assignments} WHERE id = ?`).run([...values, id]);
+  const sql = `UPDATE ${table} SET ${assignments} WHERE id = ?`;
+  db.prepare(sql).run([...values, id]);
   res.sendStatus(200);
 });
 
+// Удалить строку
+router.delete('/table/:tableName/:id', (req, res) => {
+  const { tableName, id } = req.params;
+  if (!isValidTable(tableName)) return res.status(400).json({ error: 'Invalid table name' });
+
+  db.prepare(`DELETE FROM ${tableName} WHERE id = ?`).run(id);
+  res.sendStatus(200);
+});
+
+// Удалить постер
 router.delete('/delete-poster/:animeId', async (req, res) => {
   try {
     const { Anime } = await import('../models/Anime.js');
@@ -147,12 +159,4 @@ router.delete('/delete-poster/:animeId', async (req, res) => {
   }
 });
 
-// Удалить строку
-router.delete('/table/:tableName/:id', (req, res) => {
-  const { tableName, id } = req.params;
-  db.prepare(`DELETE FROM ${tableName} WHERE id = ?`).run(id);
-  res.sendStatus(200);
-});
-
 export default router;
-
