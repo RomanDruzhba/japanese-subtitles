@@ -4,8 +4,9 @@ import { useAuth } from '../context/AuthContext';
 interface Card {
   id: number;
   word: string;
+  reading: string;
   translation: string;
-  difficulty: 'трудно' | 'сложно' | 'легко' | 'снова';
+  difficulty: 'трудно' | 'хорошо' | 'легко' | 'снова';
   nextAppearance: string;
   efactor: number;
   interval: number;
@@ -20,7 +21,7 @@ const FlashcardsPage: React.FC = () => {
   const [showBack, setShowBack] = useState(false);
   const [showTable, setShowTable] = useState(false);
   const [editedCardId, setEditedCardId] = useState<number | null>(null);
-  const [editedFields, setEditedFields] = useState<{ word?: string; translation?: string }>({});
+  const [editedFields, setEditedFields] = useState<{ word?: string; translation?: string; reading?: string }>({});
 
   const fetchCards = async () => {
     const res = await fetch(`/api/cards?userId=${currentUser?.id}`);
@@ -72,7 +73,7 @@ const FlashcardsPage: React.FC = () => {
 
   const difficultyMap: Record<Card['difficulty'], number> = {
     'трудно': 2,
-    'сложно': 3,
+    'хорошо': 3,
     'легко': 5,
     'снова': 0,
   };
@@ -87,7 +88,7 @@ const FlashcardsPage: React.FC = () => {
         return new Date(now.getTime() + 30 * 1000); // 30 секунд
       case 2: // 'трудно'
         return new Date(now.getTime() + 10 * 60 * 1000); // 10 минут
-      case 3: // 'сложно'
+      case 3: // 'хорошо'
         return new Date(now.getTime() + 60 * 60 * 1000); // 1 час
       case 5: // 'легко'
         return new Date(now.getTime() + 24 * 60 * 60 * 1000); // 1 день
@@ -145,11 +146,18 @@ const FlashcardsPage: React.FC = () => {
             className="text-3xl px-8 py-6 mx-auto w-72 border-2 border-gray-700 rounded-xl cursor-pointer bg-white shadow-md mb-6"
             onClick={() => setShowBack(!showBack)}
           >
-            {showBack ? card.translation : card.word}
+            {showBack ? (
+              <div>
+                <div className="text-xl mb-2 text-gray-600">{card.reading}</div> {/* Показываем чтение */}
+                <div>{card.translation}</div>
+              </div>
+            ) : (
+              card.word
+            )}
           </div>
 
           <div className="flex justify-center gap-4 flex-wrap mb-8">
-            {(['трудно', 'сложно', 'легко', 'снова'] as Card['difficulty'][]).map((diff) => {
+            {(['трудно', 'хорошо', 'легко', 'снова'] as Card['difficulty'][]).map((diff) => {
               const predicted = card ? getNextAppearance(card, diff) : null;
               return (
                 <div key={diff} className="flex flex-col items-center">
@@ -179,6 +187,7 @@ const FlashcardsPage: React.FC = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="border px-4 py-2">Слово</th>
+                <th className="border px-4 py-2">Чтение</th>
                 <th className="border px-4 py-2">Перевод</th>
                 <th className="border px-4 py-2">Сложность</th>
                 <th className="border px-4 py-2">Следующее повторение</th>
@@ -200,6 +209,20 @@ const FlashcardsPage: React.FC = () => {
                       />
                     ) : (
                       c.word
+                    )}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {editedCardId === c.id ? (
+                      <input
+                        maxLength={300}
+                        value={editedFields.reading ?? c.reading}
+                        onChange={(e) =>
+                          setEditedFields((prev) => ({ ...prev, reading: e.target.value }))
+                        }
+                        className="border px-2 py-1 w-full rounded"
+                      />
+                    ) : (
+                      c.reading
                     )}
                   </td>
                   <td className="border px-4 py-2">

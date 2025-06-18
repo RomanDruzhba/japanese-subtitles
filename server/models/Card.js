@@ -9,12 +9,16 @@ Card.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  reading: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   translation: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   difficulty: {
-    type: DataTypes.ENUM('трудно', 'сложно', 'легко', 'снова'),
+    type: DataTypes.ENUM('трудно', 'хорошо', 'легко', 'снова'),
     allowNull: false,
   },
   nextAppearance: {

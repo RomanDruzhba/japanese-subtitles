@@ -4,7 +4,7 @@ import { Card } from '../models/Card.js';
 
 const router = express.Router();
 
-// Интервальное повторение
+// Интервальное повторение — простая логика (можно доработать)
 function sm2(card, quality) {
   let { efactor, interval, repetition } = card;
 
@@ -12,8 +12,9 @@ function sm2(card, quality) {
   let nextAppearance;
 
   if (quality < 3) {
+    // Сброс повтора
     repetition = 0;
-    efactor = 2.5;
+    efactor = 2.5; // можно сбрасывать или оставить
     switch (quality) {
     case 0: // снова
       nextAppearance = new Date(now.getTime() + 30 * 1000); // 30 секунд
@@ -22,7 +23,7 @@ function sm2(card, quality) {
       nextAppearance = new Date(now.getTime() + 10 * 60 * 1000); // 10 минут
       break;
     case 3: // сложно
-      nextAppearance = new Date(now.getTime() + 60 * 60 * 1000); // 1 час
+      nextAppearance = new Date(now.getTime() + 30 * 60 * 1000); // 1 час
       break;
     default:
       nextAppearance = new Date(now.getTime() + 60 * 60 * 1000); // fallback: 1 час
@@ -66,7 +67,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { userId, word, translation } = req.body;
+  const { userId, word, translation, reading } = req.body;
 
   if (!userId || !word || !translation) {
     return res.status(400).json({ error: 'userId, word и translation обязательны' });
@@ -78,6 +79,7 @@ router.post('/', async (req, res) => {
       userId,
       word,
       translation,
+      reading,
       difficulty: '',
       nextAppearance: new Date(now.getTime()),
       repetition: 0,
@@ -121,7 +123,7 @@ router.post('/:id/update', async (req, res) => {
 
 router.patch('/:id/update', async (req, res) => {
   const { id } = req.params;
-  const { word, translation } = req.body;
+  const { word, translation, reading } = req.body;
 
   try {
     const card = await Card.findByPk(id);
@@ -129,6 +131,7 @@ router.patch('/:id/update', async (req, res) => {
 
     if (word) card.word = word;
     if (translation) card.translation = translation;
+    if (reading !== undefined) card.reading = reading;
 
     await card.save();
     res.json({ success: true, card });

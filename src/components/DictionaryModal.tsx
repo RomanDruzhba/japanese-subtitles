@@ -21,7 +21,7 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const handleAddCard = async (entryId: string, word: string, translation: string) => {
+  const handleAddCard = async (entryId: string, word: string, reading: string, translation: string) => {
     const user = getCurrentUser();
     if (!user) return;
 
@@ -30,7 +30,7 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
       await fetch('/api/cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ word, translation, userId: user.id }),
+        body: JSON.stringify({ word, reading, translation, userId: user.id }),
       });
       setAddedIds(prev => new Set(prev).add(entryId));
     } catch (err) {
@@ -49,14 +49,6 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
         className="bg-white rounded-lg max-w-2xl w-11/12 max-h-[80vh] overflow-y-auto shadow-xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded text-center items-center flex justify-center"
-          >
-            ×
-          </button>
-        </div>
         <h2 className="text-2xl font-semibold border-b pb-2 mb-4">{word}</h2>
         {/* блок с сообщением об усечении */}
         {truncationMessage && (
@@ -104,7 +96,7 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
                       } disabled:opacity-50`}
                       disabled={addingId === entryId || addedIds.has(entryId)}
                       onClick={() =>
-                        handleAddCard(entryId, wordKanji, plainTranslation)
+                        handleAddCard(entryId, wordKanji, reading, plainTranslation)
                       }
                     >
                       {addedIds.has(entryId)
@@ -122,7 +114,14 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({ word, entries, onClos
           <p className="text-gray-500 italic">Нет записей в словаре.</p>
         )}
 
-        
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+          >
+            Закрыть
+          </button>
+        </div>
       </div>
     </div>
   );
