@@ -10,7 +10,7 @@ const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <Header />
-      <main className='flex-1, p-10 min-h-[82.2vh]'>{children}</main>
+      <main className='flex-1, p-10 min-h-[86.1vh]'>{children}</main>
       <Footer />
     </>
   );
